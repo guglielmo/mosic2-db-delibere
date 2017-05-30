@@ -1,0 +1,41 @@
+# This is an implicit value, here for clarity
+--index-url https://pypi.python.org/simple/
+
+# Bleeding edge Django (py 2.7, 3.4, 3.5)
+Django>=1.10,<1.11
+django-extensions>=1.4
+
+# Configuration
+django-environ>=0.3
+
+# Forms
+django-braces>=1.4
+
+# Models
+django-model-utils>=2.2
+
+# haystack and solr need a patched version to properly address
+# extracting textual content
+-e git+https://github.com/openpolis/django-haystack.git#egg=django-haystack
+pysolr==3.6.0
+
+# try elasticsearch, to use searchkit
+# django-haystack==2.6.0
+# elasticsearch==5.3.0
+
+# used by scraper management task
+requests==2.13.0
+lxml==3.4.4
+cssselect==0.9.1
+
+# used by import (csv handling)
+csvkit==1.0.2
+
+
+djangorestframework
+djangorestframework-jwt
+django-rest-swagger==2.1.2
+
+markdown
+django-filter
+
