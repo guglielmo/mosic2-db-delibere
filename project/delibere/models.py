@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import os
 
 from django.db import models
+from django.urls import reverse
 
 import search_indexes
 
@@ -30,8 +31,12 @@ class Firmatario(models.Model):
 
 class Delibera(Timestampable, models.Model):
     codice = models.CharField(
-        max_length=7, unique=True, null=True,
+        max_length=8, unique=True, null=True,
         help_text="Codice identificativo anno/seduta."
+    )
+    slug = models.CharField(
+        max_length=14, unique=True, null=True,
+        help_text="Slug identificativo numer-data"
     )
     descrizione = models.CharField(
         max_length=512,
@@ -144,8 +149,47 @@ class Delibera(Timestampable, models.Model):
         blank=True, null=True
     )
 
+
+    @property
+    def settoriprimari(self):
+        return self.settori.filter(parent__isnull=True)
+
+    @property
+    def sottosettori(self):
+        return self.settori.filter(parent__isnull=False)
+
+    @property
+    def doc_primari_pdf(self):
+        return self.documento_set.filter(
+            tipo_documento='P', estensione__iexact='pdf'
+        )
+
+
+    @property
+    def doc_primario(self):
+        if self.doc_primari_pdf.count():
+            return self.doc_primari_pdf[0]
+        elif self.doc_primari_doc.count():
+            return self.doc_primari_doc[0]
+        else:
+            return None
+
+
+    @property
+    def doc_primari_doc(self):
+        return self.documento_set.filter(
+            tipo_documento='P', estensione__iexact='doc'
+        )
+
+    @property
+    def doc_allegati(self):
+        return self.documento_set.filter(tipo_documento='A')
+
     def __unicode__(self):
         return self.descrizione
+
+    def get_absolute_url(self):
+        return reverse('delibera_details', args=[str(self.slug)])
 
     class Meta:
         db_table = 'delibere_delibera'
@@ -156,7 +200,6 @@ def upload_to(instance, filename):
     return '{0}'.format(filename)
 
 class Documento(models.Model):
-    filepath = models.CharField(max_length=256, null=True)
     # file will contain the file,
     # it is null because it can be added
     # after the Documento object has been created
@@ -182,7 +225,7 @@ class Documento(models.Model):
     )
 
     def __unicode__(self):
-        return self.filepath
+        return self.file.path
 
 
     class Meta:
@@ -217,7 +260,7 @@ class Normativa(models.Model):
 
 
     class Meta:
-        verbose_name_plural = 'amministrazioni'
+        verbose_name_plural = 'normative'
 
 class Settore(models.Model):
     parent = models.ForeignKey(
@@ -243,7 +286,7 @@ class Settore(models.Model):
 
 
     class Meta:
-        verbose_name_plural = 'amministrazioni'
+        verbose_name_plural = 'settori'
 
 # signals ---------------------------------------------
 
@@ -262,7 +305,6 @@ def documento_post_save_handler(sender, **kwargs):
     documento_obj = kwargs['instance']
     index = search_indexes.DeliberaIndex()
     index.update_object(documento_obj.delibera)
-    print(documento_obj)
 
 
 @receiver(post_delete, sender=Delibera)
@@ -277,7 +319,6 @@ def delibera_post_delete_handler(sender, **kwargs):
     delibera_obj = kwargs['instance']
     index = search_indexes.DeliberaIndex()
     index.remove_object(delibera_obj)
-    print(delibera_obj)
 
 
 @receiver(post_delete, sender=Documento)
@@ -294,7 +335,7 @@ def documento_post_delete_handler(sender, **kwargs):
         storage, path = documento_obj.file.storage, documento_obj.file.path
         storage.delete(path)
 
-    # remove extracted text document if it extists
+    # remove extracted text document if it exists
     text_path = documento_obj.file.path.replace('docs', 'texts') + '.txt'
     if os.path.exists(text_path):
         os.remove(text_path)

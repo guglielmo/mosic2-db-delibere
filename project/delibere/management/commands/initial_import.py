@@ -1,13 +1,16 @@
 # coding=utf-8
 import os
-import requests
-import time
 
+import requests
+from django.core.files import File
+from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 import agate
+from django.db.models import signals, F
+from django.conf import settings
 
 from delibere.models import Delibera, Firmatario, Documento, Amministrazione, \
-    Normativa, Settore
+    Normativa, Settore, documento_post_save_handler
 
 text_type = agate.Text()
 number_type = agate.Number()
@@ -27,8 +30,8 @@ class Command(BaseCommand):
         parser.add_argument(
             '--docs-path',
             dest='docs_path',
-            default="./resources/media/docs/",
-            help='Relative path to docs directory.',
+            default="./resources/fixtures/initial_docs",
+            help='Relative path to initial docs files.',
         )
         parser.add_argument(
             '--csv-path',
@@ -52,7 +55,7 @@ class Command(BaseCommand):
         :return: l'anno nel formato YYYY 
         """
         anno = nomefile[1:3]
-        if anno[0] > 5:
+        if anno[0] > '5':
             anno = '19' + anno
         else:
             anno = '20' + anno
@@ -67,25 +70,57 @@ class Command(BaseCommand):
         """
         self.stdout.write(self.style.NOTICE("Starting import of {0}".format(doc_type)))
         for n, row in enumerate(rows):
-            try:
+            # rel. file path
+            file_path = "docs/{0}/{1}".format(
+                self._anno_from_nomefile(row['NOMEFILE']),
+                row['NOMEFILE']
+            )
 
-                Documento.objects.update_or_create(
-                    id=row['ID'],
-                    defaults={
-                        'filepath': "./docs/{0}/{1}".format(
-                            self._anno_from_nomefile(row['NOMEFILE']),
-                            row['NOMEFILE']
-                        ),
-                        'delibera_id': row['DELIB_ID'] ,
-                        'estensione': row['ESTENSIONE'],
-                        'tipo_documento': doc_type[0],
-                        # '': row[''],
-                    }
+            # original absolute file path (fixtures)
+            original_abs_file_path = os.path.normpath(
+                os.path.join(
+                    self.docs_path, file_path
                 )
+            )
+
+            doc, created = Documento.objects.update_or_create(
+                id=row['ID'],
+                defaults={
+                    'name': row['NOMEFILE'],
+                    'delibera_id': row['DELIB_ID'] ,
+                    'estensione': row['ESTENSIONE'],
+                    'tipo_documento': doc_type[0].upper(),
+                }
+            )
+
+            try:
+                # load content of original file into media
+                # simulate a file upload
+                doc.file.delete(save=False)
+                with open(original_abs_file_path) as fp:
+                    doc.file.save(file_path, File(fp), save=True)
+
             except Exception as e:
-                self.stdout.write(self.style.ERROR(
-                    u"Error while importing row with id:{0}. {1}".format(row['ID'], e))
+                doc_url = \
+                    "http://www.cipecomitato.it/it/il_cipe/delibere/" \
+                    "download?f={0}".format(row['NOMEFILE'])
+
+                self.stdout.write(self.style.NOTICE(
+                    u"Could not find {0} locally. "
+                    u"Trying to download from {1}".format(
+                        row['NOMEFILE'], doc_url))
                 )
+
+                try:
+                    response = requests.get(doc_url)
+                    doc.file.save(file_path, ContentFile(response.content))
+                except Exception as e:
+                    self.stdout.write(self.style.ERROR(
+                        u"Error while importing row with "
+                        u"id:{0}. {1}".format(row['ID'], e))
+                    )
+
+
             if n > 0 and n%500 == 0:
                 self.stdout.write(self.style.NOTICE("{0} rows imported on {1}".format(n, len(rows))))
 
@@ -99,6 +134,11 @@ class Command(BaseCommand):
         self.csv_path = options['csv_path']
 
         self.stdout.write(self.style.NOTICE("Starting..."))
+
+        # disconnect signal (no indexing while importing)
+        signals.post_save.disconnect(
+            documento_post_save_handler, sender=Documento
+        )
 
         models = [
             'firmatari', 'delibere', 'documenti',
@@ -153,11 +193,18 @@ class Command(BaseCommand):
         )
 
         self.stdout.write(self.style.NOTICE("Starting import of delibere"))
+        import locale
+        locale.setlocale(locale.LC_TIME, "it_IT")
         for n, row in enumerate(rows):
             try:
                 Delibera.objects.update_or_create(
                     id=row['ID'],
                     defaults={
+                        'slug': "{0}-{1:02d}-{2}-{3}".format(
+                            row['CODICE'][3:].lstrip('0'),
+                            row['DATADELIBERA'].day,
+                            row['DATADELIBERA'].strftime("%B").lower(),
+                            row['DATADELIBERA'].year),
                         'codice': row['CODICE'],
                         'descrizione':  row['DESCRIZIONE'],
                         'data': row['DATADELIBERA'],
@@ -203,7 +250,7 @@ class Command(BaseCommand):
                 number_type, text_type, number_type, text_type
             ]
         )
-        self._import_documenti(rows, 'documenti')
+        self._import_documenti(rows, 'principali')
 
         self.stdout.write(self.style.NOTICE("Reading allegati file"))
         rows = agate.Table.from_csv(
@@ -355,5 +402,28 @@ class Command(BaseCommand):
             if n > 0 and n%500 == 0:
                 self.stdout.write(self.style.NOTICE(
                     u"{0} rows imported on {1}".format(n, len(rows)))
-                )
+            )
+
+        # aggiustamento delibere con solo sottosettore
+        self.stdout.write(self.style.NOTICE(
+            "Assigning settore to delibere containing only sottosettore"
+        ))
+        for d in Delibera.objects.all():
+            for s in d.settori.all():
+                if s.parent and not s.parent in d.settori.all():
+                    self.stdout.write(self.style.NOTICE(
+                        "adding {0} to {1} for {2}".format(
+                            s.parent ,s, d
+                        )
+                    ))
+                    d.settori.add(s.parent)
+
+        self.stdout.write(self.style.NOTICE(
+            "Removing sottosettori having the same description of settori"
+        ))
+        Settore.objects.filter(
+            parent__isnull=False,
+            descrizione__iexact=F('parent__descrizione')
+        ).delete()
+
         self.stdout.write(self.style.NOTICE("Finished"))

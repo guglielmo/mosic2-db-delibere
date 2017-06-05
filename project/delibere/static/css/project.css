@@ -1,1 +1,117 @@
 /* Project specific CSS goes here. */
+
+.result {
+    padding: 20px 10px 0 10px;
+}
+.result:hover {
+    background-color: rgb(238, 238, 238);
+}
+
+.result h3 {
+    margin-bottom: 5px;
+}
+
+.result .page-header {
+    padding-bottom: 0;
+    margin: 0;
+    border: 0;
+}
+.result .entry-content {
+    margin: 5px 0;
+}
+.navbar-default {
+    background-image: none!important;
+}
+@media (max-width: 1440px) and (min-width: 1025px) {
+    .logo_container {
+        margin-top: 0;
+    }
+}
+.sidebar {
+    background-color: rgb(238, 238, 238);
+}
+
+.sidebar-module-inset {
+    padding-right: 10px;
+}
+
+form h3, form h4 {
+    margin: 0;
+}
+
+form {
+    margin-top: 10px;
+}
+
+.sidebar hr {
+    border-bottom: 1px solid gainsboro;
+}
+
+pre {
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-break: keep-all;
+}
+
+.btn-default {
+    border-color: #ccc;
+    color: #333!important;
+    background-color: #fff;
+}
+
+.btn-default:hover {
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+div.result p {
+    margin: 0;
+}
+
+
+
+
+ul#pagination-digg{border:0; margin:1em 10px; padding:0; float: right}
+
+#pagination-digg li{
+    border:0; margin:0; padding:0;
+    list-style:none;
+    float:left;
+    display: block;
+    margin-right:0px;
+}
+#pagination-digg a{
+    border:solid 1px #dedede;
+    margin-right:0px;
+    font-weight: normal;
+}
+
+#pagination-digg a,
+#pagination-digg .ellipsis,
+#pagination-digg .active
+{
+    padding:0.6em 1em;
+}
+#pagination-digg .next a,
+#pagination-digg .previous a {
+}
+
+#pagination-digg .ellipsis {
+    padding: 0 1em;
+}
+#pagination-digg .active{
+    background:#EAE9E5;
+    color:black;
+    font-weight:bold;
+    border:solid 1px #0e0e0e
+}
+#pagination-digg a:link,
+#pagination-digg a:visited {
+    color:black;
+    text-decoration:none;
+}
+#pagination-digg a:hover{
+    border:solid 1px #0e0e0e
+}

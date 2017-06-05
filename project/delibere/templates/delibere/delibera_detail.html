@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Delibera: {{ delibera.codice }}{% endblock %}
+
+{% block content %}
+    <div id="main" class="site-main" role="main">
+
+
+        <article class="hentry">
+	        <header class="entry-header page-header">
+                <h1 class="title_row">Delibera numero {{ delibera.numero }}, del {{ delibera.data }}</h1>
+                <strong>{{ delibera.descrizione }}</strong>
+            </header>
+
+            <div class="entry-content">
+
+                {% if delibera.tipo_delibera %}
+                    <br/>
+                    <b>Tipo delibera:</b> {{ delibera.tipo_delibera }}
+                {% endif %}
+
+                {% if delibera.firmatario %}
+                    <br/>
+                    <b>Firmatario:</b> {{ delibera.firmatario }}
+                    {% if delibera.tipo_firmatario %}
+                    ({{ delibera.tipo_firmatario }})
+                    {% endif %}
+                {% endif %}
+
+                {% if delibera.amministrazioni.count > 0 %}
+                    <br/>
+                    <b>Amministrazioni:</b>
+                    {% for amm in delibera.amministrazioni.all %}
+                        <span>{{ amm }}</span>
+                    {% endfor %}
+                {% endif %}
+
+                {% if delibera.normative.count > 0 %}
+                    <br/>
+                    <b>Normative:</b>
+                    {% for norm in delibera.normative.all %}
+                        <span>{{ norm }}</span>
+                    {% endfor %}
+                {% endif %}
+
+                {% if delibera.gu_data %}
+                    <br/>
+                    <span class="posted-on"><i class="fa fa-calendar"></i>
+                            Pubblicata in Gazzetta Ufficiale in data
+                            <time class="entry-date published">{{ delibera.gu_data }}</time>{% if delibera.gu_numero %},
+                            Numero: {{ delibera.gu_numero }}{% endif %}
+
+                            {% comment %}
+                            {% if delibera.gu_tipologia %},
+                            Tipologia: {{ delibera.gu_tipologia }}{% endif %}
+                            {% endcomment %}
+                    </span>
+                {% endif %}
+
+                {% if delibera.cc_data %}
+                    <br/>
+                    <span class="posted-on"><i class="fa fa-calendar"></i>
+                            Registrata presso la Corte dei Conti in data
+                            <time class="entry-date published">{{ delibera.cc_data }}</time>{% if delibera.cc_registro %},
+                            Registro: {{ delibera.cc_registro }}{% endif %}{% if delibera.cc_foglio %},
+                            Foglio: {{ delibera.cc_foglio }}{% endif %}
+                    </span>
+                {% endif %}
+
+                {% if delibera.doc_primario %}
+                    <br/>
+                    <b>Documento della delibera:</b>
+                    <a href="{{ delibera.doc_primario.file.url }}" style="font-size: 16px;">
+                        {{ delibera.doc_primario.nome }}</a>
+                        ({{ delibera.doc_primario.estensione|lower }} -
+                         {{ delibera.doc_primario.file.size|filesizeformat }})
+                {% endif %}
+
+                {% if delibera.doc_allegati.count > 0 %}
+                    <br/>
+                    <b>Allegati:</b>
+                    {% for doc in delibera.doc_allegati %}
+                    <ul>
+                        <li>
+                        <a href="{{ doc.file.url }}">{{ doc.nome }}</a>
+                        ({{ doc.estensione|lower }} -
+                         {{ doc.file.size|filesizeformat }})
+                        </li>
+                    </ul>
+                    {% endfor %}
+                {% endif %}
+
+                {% if testo_delibera %}
+                    <br/>
+                    <div class="collapse" id="text-preview">
+                        <pre>
+                            {{ testo_delibera }}
+                        </pre>
+                    </div>
+                    <a id="toggle-text-preview" class="toggle-preview"
+                        data-toggle="collapse" href="#text-preview"
+                        aria-expanded="false" aria-controls="text-preview"
+                        >Mostra l'anteprima del testo della delibera</a>
+                {% endif %}
+
+
+            </div>
+
+            <footer class="entry-meta">
+                {% if delibera.settoriprimari.count %}
+                    <i class="fa fa-folder-open-o"></i>
+                    <b>Settori:</b>
+                    {% for settore in delibera.settoriprimari.all %}
+                        <span>{{ settore }}</span>
+                    {% endfor %}
+                {% endif %}
+
+                {% if delibera.sottosettori.count %}
+                    <br/>
+                    <i class="fa fa-tags"></i>
+                    <b>Sottosettori:</b>
+                    {% for settore in delibera.sottosettori.all %}
+                        <span>{{ settore }}</span>
+                    {% endfor %}
+                {% endif %}
+
+
+                <br/>
+                <i class="fa fa-link"></i>
+                <a href="{{ delibera.get_absolute_url }}"
+                    rel="bookmark">permalink</a>
+                <hr class="section-divider">
+            </footer>
+        </article><!-- #post-## -->
+    </div>
+
+
+{% endblock content %}

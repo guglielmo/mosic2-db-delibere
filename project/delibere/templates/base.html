@@ -15,52 +15,228 @@
 
     {% block css %}
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
     <!-- Optional theme -->
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
     <!-- This file store project specific CSS -->
+    <link href="{% static 'css/cli-style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/agid_style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap-datetimepicker.css' %}" rel="stylesheet">
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
     {% endblock css %}
 
     <link rel="icon" href="{% static 'images/favicon.ico' %}" />
 </head>
 
-<body>
+<body class="home vc_responsive">
 
-<div class="header navbar navbar-default">
-    <div class="container">
-        <a class="navbar-brand" href="/">{{ project_title }}</a>
-        <ul class="nav navbar-nav">
-            <li class="active"><a href="/">Home</a></li>
-            <li><a href="#">About</a></li>
+<header id="page" class="hfeed site clearfix">
 
-            {% if request.user.is_authenticated %}
-            <li><a href="#">{% trans "My Profile" %}</a></li>
-            <li><a href="#">{% trans "Logout" %}</a></li>
-            {% else %}
-            <li><a href="#">{% trans "Sign Up" %}</a></li>
-            <li><a href="#">{% trans "Log In" %}</a></li>
-            {% endif %}
-        </ul>
+    <nav class="navbar navbar-default" role="navigation">
+
+        <div id="barra_logo_governo" class="clearfix">
+            <div class="container">
+                <div class="logo_governo">
+                    <p class="h4">
+                        <a href="http://www.governo.it" title="Sito della Presidenza del Consiglio dei Ministri"><strong class="hidden-xs">Governo Italiano</strong><span> Presidenza del Consiglio dei Ministri</span></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-1 col-sm-1 col-xs-1">
+                &nbsp;
+            </div>
+
+            <div class="col-md-8 col-sm-9 col-xs-11">
+                <div class="navbar-header testata">
+                    <div id="logo">
+                        <div class="logo_container clearfix">
+                            <div class="logo_wrapper clearfix">
+                                <a href="/?q="><img src="{% static 'images/logo.svg' %}" class="logo" alt="Emblema della Repubblica Italiana"></a>
+                            </div>
+                            <div class="logo_text clearfix">
+                                <h1>
+                                    <strong>
+                                        Dipartimento per la programmazione e il coordinamento della politica economica
+                                    </strong>
+                                </h1>
+                                <h2>Archivio delle Delibere CIPE dal 1967 a oggi</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-md-3 hidden-md col-sm-2 hidden-sm col-xs-11 hidden-xs">
+                <div class="social-ico pull-right">
+                    <div class="header-social">
+                        <div id="social" class="social"><span class="seguici">Seguici su:</span><a class="social-profile" href="https://twitter.com/DipePcm" title="Follow us on twitter"><i class="social_icon fa fa-twitter"></i></a></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </nav>
+
+</header>
+
+<div id="ml-0" class="ml-page ml-slideout">
+    <div id="content" class="site-content container" style="margin-bottom: 0;">
+
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+
+    {% block content %}
+    <p>Use this document as a way to quick start any new project.</p>
+    {% endblock content %}
+
+    </div> <!-- /container -->
+
+    <div id="cookie-law-info-bar"
+        style="display: none; background-color: rgb(57, 65, 79); color: rgb(255, 255, 255); font-family: inherit; position: fixed; top: 0px; border-bottom: 4px solid rgb(57, 65, 79);"><span>Questo sito utilizza cookie tecnici, analytics e di terze parti per funzionalità quali la condivisione sui social network. Se non acconsenti all'uso dei cookie di terze parti, alcune di queste funzionalità potrebbero non essere disponibili.<br>Per maggiori informazioni sui cookie utilizzati, su come disabilitarli o negare il consenso all'utilizzo consulta la <a href="http://www.programmazioneeconomica.gov.it/privacy/" id="CONSTANT_OPEN_URL" class="cli-plugin-main-link" style="color: rgb(255, 255, 255);">privacy policy</a>.<br>Se prosegui nella navigazione cliccando su un qualunque elemento sottostante acconsenti all'uso di tutti i cookie.<br><a href="#" id="cookie_action_close_header" class="medium cli-plugin-button cli-plugin-main-button" style="color: rgb(255, 255, 255); background-color: rgb(22, 22, 22);">Acconsento</a></span>
+    </div>
+    <div id="cookie-law-info-again"
+        style="background-color: rgb(57, 65, 79); color: rgb(255, 255, 255); position: fixed; font-family: inherit; border-top: none; border-right: 1px solid rgb(57, 65, 79); border-bottom: 1px solid rgb(57, 65, 79); border-left: 1px solid rgb(57, 65, 79); border-image: initial; top: 0px; right: 5%;"><span id="cookie_hdr_showagain">Informativa cookie</span>
     </div>
 </div>
 
-<div class="container">
+<div class="section section_grey_darker clearfix">
 
-{% if messages %}
-{% for message in messages %}
-    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
-{% endfor %}
-{% endif %}
+		<footer class="footer_container container" id="footer">
 
-{% block content %}
-<p>Use this document as a way to quick start any new project.</p>
-{% endblock content %}
+			<div class="row title_row">
 
-</div> <!-- /container -->
+				<div class="col-md-12">
 
+					<div class="logo_container clearfix">
+						<div class="logo_wrapper clearfix">
+							<a href="/"><img src="{% static 'images/logo.svg' %}" class="logo" alt="Logo Governo Italiano"></a>
+						</div>
+						<div class="logo_text clearfix">
+							<h2><span>Presidenza del Consiglio dei Ministri</span><br>Dipartimento per la programmazione e il coordinamento della politica economica</h2>
+						</div>
+					</div>
+					<!-- /logo_container -->
+
+				</div>
+				<!-- /col-md-12 -->
+
+			</div>
+			<!-- /row -->
+
+			<div class="row">
+
+				<div class="col-md-9">
+
+					<div class="row title_row">
+
+						<div class="col-md-12">
+							<h3>Contatti</h3>
+						</div>
+						<!-- /col-md-12 -->
+
+					</div>
+					<!-- /row -->
+
+					<div class="row">
+						<div class="col-md-4">
+							<div class="box_text box_text_footer clearfix">
+								<h4>Presidenza del Consiglio dei Ministri</h4>
+								<p>Dipartimento per la Programmazione e il Coordinamento della Politica Economica<br> Via della Mercede 9<br> 00187 Roma - Italia</p>
+							</div>
+						</div>
+						<!-- /col-md-4 -->
+						<div class="col-md-4">
+							<div class="box_text box_text_footer clearfix">
+								<h4>Recapiti telefonici</h4>
+								<p><a href="http://www.programmazioneeconomica.gov.it/contatti/">Contatti</a></p>
+							</div>
+						</div>
+						<!-- /col-md-4 -->
+						<div class="col-md-4">
+							<div class="box_text box_text_footer clearfix">
+								<h4>Indirizzo PEC</h4>
+								<p><a href="mailto:dipe.cipe@pec.governo.it">dipe.cipe@pec.governo.it</a></p>
+								<h4>Indirizzo posta elettronica</h4>
+								<p><a href="mailto:dipe.segreteriacd@governo.it">dipe.segreteriacd@governo.it</a></p>
+<p><a href="mailto:cup.helpdesk@tesoro.it">Sistema CUP MIP</a></p>
+<p><a href="mailto:gruppo.mgo@governo.it">Sistema MGO</a></p>
+							</div>
+						</div>
+						<!-- /col-md-4 -->
+					</div>
+					<!-- /row -->
+				</div>
+				<!-- /col-md-9 -->
+
+				<div class="col-md-3">
+
+					<div class="row title_row">
+
+						<div class="col-md-12">
+							<h3>Seguici su</h3>
+						</div>
+						<!-- /col-md-12 -->
+
+					</div>
+					<!-- /row -->
+
+					<div class="row">
+
+						<div class="col-md-12">
+							<div class="box_text box_text_footer box_text_footer_social clearfix">
+								<div class="footer_social clearfix">
+									<!--<a href="https://www.facebook.com/palazzochigi.it/" title="Seguici su Facebook"><span class="icon icon-facebook"></span></a>-->
+									<a href="https://twitter.com/DipePcm" title="Seguici su Twitter"><span class="icon icon-twitter"></span></a>
+									<!--<a href="https://www.flickr.com/photos/palazzochigi/" title="Seguici su Flickr"><span class="icon icon-flickr"></span></a>-->
+									<!--<a href="https://www.youtube.com/palazzochigi" title="Seguici su YouTube"><span class="icon icon-youtube"></span></a>-->
+									<!--<a href="http://www.slideshare.net/palazzo_chigi" title="Seguici su Slideshare"><span class="icon icon-slideshare"></span></a>-->
+								</div>
+								<!-- /footer_social -->
+							</div>
+						</div>
+						<!-- /col-md-12 -->
+
+					</div>
+					<!-- /row -->
+
+
+				</div>
+				<!-- /col-md-3 -->
+
+
+			</div>
+			<!-- /row -->
+
+			<div class="row">
+
+				<div class="col-md-12 footer_links clearfix">
+					<ul class="footer_links clearfix">
+<ul id="menu-note" class="nav footer-nav clearfix"><li id="menu-item-108" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-108"><a title="Copyright" href="http://www.programmazioneeconomica.gov.it/copyright/">Note legali</a></li>
+<li id="menu-item-109" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-109"><a title="Privacy" href="http://www.programmazioneeconomica.gov.it/privacy/">Privacy</a></li>
+</ul>
+					</ul> <!-- <a href="http://www.governo.it/feed/rss" title="Feed RSS" class="rss_feed"><span class="icon-rss-two"></span></a> -->
+				</div>
+				<!-- /col-md-12 -->
+
+			</div>
+			<!-- /row -->
+
+		</footer>
+		<!-- /footer_container -->
+
+	</div>
 {% block modal %}{% endblock modal %}
 
 <!-- Javascripts
@@ -71,11 +247,17 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 
 <!-- Latest compiled and minified JavaScript -->
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 <!-- Your stuff: Third-party javascript libraries go here -->
 
 <!-- place project specific Javascript in this file -->
+<script async src="//www.google-analytics.com/analytics.js"></script>
+<script src="{% static 'js/moment-with-locales.min.js' %}"></script>
+<script src="{% static 'js/bootstrap-datetimepicker.js' %}"></script>
+<script src="{% static 'js/jquery.cslider.js' %}"></script>
+<script src="{% static 'js/cookielawinfo.js' %}"></script>
+<script src="{% static 'js/functions.min.js' %}"></script>
+<script src="{% static 'js/cookie_analytics.js' %}"></script>
 <script src="{% static 'js/project.js' %}"></script>
 {% endblock javascript %}
 </body>

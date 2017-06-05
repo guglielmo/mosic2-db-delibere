@@ -1,22 +1,44 @@
 import os
+import string
 import sys
 
 import errno
-from django.conf import settings
-from django.template import loader, Context
+from django.template import loader
 from haystack import indexes
-from pysolr import SolrError
+from haystack.fields import FacetCharField
 
 import delibere
 
 class DeliberaIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
-    year = indexes.CharField(model_attr='year')
-    number = indexes.CharField(model_attr='number')
-    title = indexes.CharField(model_attr='title', indexed=False)
-    seduta_date = indexes.DateTimeField(model_attr='date')
-    cc_date = indexes.DateTimeField(model_attr='cc_date', null=True)
-    gu_date = indexes.DateTimeField(model_attr='gu_date', null=True)
+    anno = indexes.IntegerField(model_attr='anno', faceted=True)
+    numero = indexes.CharField(model_attr='numero')
+    numero_ord = indexes.CharField(indexed=False)
+    descrizione = indexes.CharField(model_attr='descrizione', indexed=False)
+    seduta_data = indexes.DateTimeField(model_attr='data', faceted=True)
+    cc_data = indexes.DateTimeField(model_attr='cc_data', null=True)
+    gu_data = indexes.DateTimeField(model_attr='gu_data', null=True)
+
+    tipo_delibera = indexes.CharField(
+        stored=False, faceted=True,
+        model_attr='tipo_delibera',
+        null=True
+    )
+    firmatario = indexes.CharField(
+        stored=False, faceted=True,
+        model_attr='firmatario__nominativo',
+        null=True
+    )
+    settori = indexes.MultiValueField(
+        stored=False, faceted=True,
+        model_attr='settori__descrizione',
+        null=True
+    )
+    amministrazioni = indexes.MultiValueField(
+        stored=False, faceted=True,
+        model_attr='amministrazioni__denominazione',
+        null=True
+    )
 
     def get_model(self):
         return delibere.models.Delibera
@@ -25,22 +47,49 @@ class DeliberaIndex(indexes.SearchIndex, indexes.Indexable):
         """Used when the entire index for model is updated."""
         return self.get_model().objects.all()
 
+    def prepare_numero_ord(self, obj):
+        """usa campo numero per ordinamento
+        
+        vangono aggiunti degli zeri, fino ad avere 4 cifre decimali, in 
+        modo che 1, 1b, 10, 11 
+        siano ordinati in sequenza e non come 1, 10, 11, 1b.
+        """
+        num = obj.numero
+        return "{0:04d}".format(
+            int(num.rstrip(string.punctuation).rstrip(string.letters))
+        ) + num.lstrip(string.digits)
+
+
+
     def prepare(self, obj):
         data = super(DeliberaIndex, self).prepare(obj)
 
-        # This could also be a regular Python open() call, a StringIO instance
-        # or the result of opening a URL. Note that due to a library limitation
+        # Due to a library limitation
         # file_obj must have a .name attribute even if you need to set one
         # manually before calling extract_file_contents:
         docs_content = ''
         backend = self._get_backend(None)
         docs = obj.documento_set.all()
         for doc in docs:
-            doc_path = os.path.normpath(
-                settings.MEDIA_ROOT + '/' +
-                doc.filepath
-            )
-            text_path = doc_path.replace('docs', 'texts') + '.txt'
+
+            # pdf documents from 2009 come from GU and may
+            # contain parts of other acts, right before or after
+            # the delibera. This would pollute the index, so only the
+            # corresponding doc file is indexed.
+            # The PDF
+            if doc.delibera.anno >= 2009 and \
+               doc.file.path.split('.')[-1] == 'pdf':
+                continue
+
+            # Only main documents are indexed
+            if doc.tipo_documento != 'P':
+                continue
+
+            text_path = doc.file.path.replace('docs', 'texts') + '.txt'
+
+            # sys.stdout.write(
+            #     u"Indexing: {0}\n".format(text_path)
+            # )
 
             # text content extraction
             try:
@@ -51,9 +100,9 @@ class DeliberaIndex(indexes.SearchIndex, indexes.Indexable):
                         text_data_content = text_obj.read()
                 else:
                     # proceed to text extraction from document
-                    if os.path.exists(doc_path) and \
-                        doc_path.split('.')[-1] in ['doc', 'docx', 'pdf']:
-                        with open(doc_path, 'rb') as file_obj:
+                    if os.path.exists(doc.file.path) and \
+                        doc.file.path.split('.')[-1] in ['doc', 'docx', 'pdf']:
+                        with open(doc.file.path, 'rb') as file_obj:
                             extracted_data = backend.extract_file_contents(
                                 file_obj, extractFormat='text'
                             )
@@ -64,7 +113,7 @@ class DeliberaIndex(indexes.SearchIndex, indexes.Indexable):
                                 strip('XXX').\
                                 replace('XXX', '\n')
 
-                            if doc_path.split('.')[-1] == 'doc':
+                            if doc.file.path.split('.')[-1] == 'doc':
                                 text_data_content = "\n".join(
                                     text_data_content.split('\n')[2:]
                                 )
@@ -84,7 +133,7 @@ class DeliberaIndex(indexes.SearchIndex, indexes.Indexable):
                     docs_content += text_data_content.\
                         replace('\r\n', ' ').replace('\n', '').\
                         strip()
-            except SolrError as e:
+            except Exception as e:
                 sys.stderr.write("Errore {0} in {1}".format(e, obj.id))
 
 

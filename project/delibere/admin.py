@@ -8,12 +8,12 @@ class DocumentoInline(admin.TabularInline):
     max_num = 0
     can_delete = False
     show_change_link = True
-    readonly_fields = fields = ('filepath', 'nome',)
+    readonly_fields = fields = ('file', 'nome',)
 
 class DeliberaAdmin(admin.ModelAdmin):
     list_display = ('id', 'numero', 'descrizione', 'cc_data', 'gu_data')
     readonly_fields = ('id', 'numero', 'anno', 'data')
-    search_fields = ('',)
+    search_fields = ('numero', 'anno', 'descrizione')
     inlines = [DocumentoInline,]
 
 class FirmatarioAdmin(admin.ModelAdmin):

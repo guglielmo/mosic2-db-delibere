@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load digg_paginator  %}
+
+{% block content %}
+
+    <div class="row">
+
+        <div class="col-sm-8 results">
+
+            {% if has_query %}
+            <h3>Trovate {{ page_obj.paginator.count }} delibere</h3>
+            {% else %}
+            <h3>Elenco delle {{ page_obj.paginator.count }} delibere in archivio</h3>
+            {% endif %}
+
+            {% for result in page_obj.object_list %}
+                <div class="result">
+                    <header class="entry-header page-header">
+                        <h3 class="result-description">
+                            <a href="{{ result.object.get_absolute_url }}">
+                                Delibera n. {{ result.object.numero }}/{{ result.object.anno }}
+                            </a> del {{ result.object.data }}
+                        </h3>
+
+                        {% if result.object.gu_data %}
+                		<div class="entry-meta">
+			                <span class="posted-on"><i class="fa fa-calendar"></i>
+                                Pubblicata in G.U. in data {{ result.object.gu_data }}</span>
+                        </div>
+                        {% endif %}
+	                </header>
+                    <div class="entry-content">
+                        <p>
+                            {{ result.object.descrizione }}
+                        </p>
+                    </div>
+                    <footer class="entry-meta">
+
+                        {% comment %}
+                        {% if result.object.settoriprimari.count %}
+                            <i class="fa fa-folder-open-o"></i>
+                            {% for settore in result.object.settoriprimari.all %}
+                                <span>{{ settore }}</span>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if result.object.sottosettori.count %}
+    		                <i class="fa fa-tags"></i>
+                            {% for settore in result.object.sottosettori.all %}
+                                <span>{{ settore }}</span>
+                            {% endfor %}
+                        {% endif %}
+                        {% endcomment %}
+
+		                <i class="fa fa-link"></i>
+		                <a href="{{ result.object.get_absolute_url }}"
+		                    rel="bookmark">permalink</a>.
+	                </footer>
+                    <hr class="section-divider">
+                </div>
+            {% empty %}
+                <p>No results found.</p>
+            {% endfor %}
+
+            {% digg_paginator %}
+
+        </div><!-- /.results -->
+
+        <div class="col-sm-4 sidebar">
+
+
+
+          <div class="sidebar-module sidebar-module-inset">
+            <form method="get" action="/">
+
+                <h3>Cerca tra le delibere</h3>
+                {{ form.non_field_errors }}
+
+                <h4>Ricerca testuale</h4>
+                <div class="fieldWrapper form-group">
+                    {{ form.q.errors }}
+                    {% comment %}{{ form.q.label_tag }}{% endcomment %}
+                    {{ form.q }}
+                </div>
+
+                <hr/>
+
+                <h4>Ricerca per data della seduta</h4>
+                <div class="fieldWrapper form-group">
+                    {{ form.start_seduta_data.errors }}
+                    {{ form.end_seduta_data.errors }}
+
+                    {{ form.start_seduta_data.label_tag }}
+                    <div class='input-group date' id='datetimepicker-start-seduta'>
+                        <input id="id_start_seduta_data"
+                            name="start_seduta_data" type="text"
+                            value="{{ form.start_seduta_data.value }}"
+                            class="form-control">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                    {{ form.end_seduta_data.label_tag }}
+                    <div class='input-group date' id='datetimepicker-end-seduta'>
+                        <input id="id_end_seduta_data"
+                            name="end_seduta_data" type="text"
+                            value="{{ form.end_seduta_data.value }}"
+                            class="form-control">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+
+                <hr/>
+
+                <h4>Ricerca per data di pubblicazione in Gazz. Uff.</h4>
+                <div class="fieldWrapper form-group">
+                    {{ form.gu_data.errors }}
+                    <div class='input-group date' id='datetimepicker-gu'>
+                        <input id="id_gu_data"
+                            name="gu_data" type="text"
+                            value="{{ form.gu_data.value }}"
+                            class="form-control">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+
+                <hr/>
+
+                <h4>Ricerca per Anno e Numero</h4>
+                <div class="fieldWrapper form-group">
+                    {{ form.anno.errors }}
+                    {{ form.numero.errors }}
+                    {{ form.anno.label_tag }}
+                    {{ form.anno }}
+                    {{ form.numero.label_tag }}
+                    {{ form.numero }}
+                </div>
+
+                <button type="submit" class="btn btn-default">Avvia ricerca</button>
+                <a class="btn btn-default" href="/?q=" role="button">Nuova ricerca</a>
+            </form>
+          </div>
+
+          <hr/>
+
+          <div class="sidebar-module">
+            <h3>Filtra</h3>
+            <p>
+                Puoi trovare la delibera scorrendo la lista, qui al lato.
+                Puoi perfezionare la ricerca usando i filtri qui sotto,
+                oppure puoi usare il form di ricerca con una parola
+                che pensi sia contenuta nella delibera, in cima a questa colonna.
+            </p>
+
+
+            {% include 'delibere/search_facets.html' with facets=my_facets only %}
+
+          </div>
+
+        </div><!-- /.sidebar -->
+
+      </div>
+
+
+{% endblock %}
