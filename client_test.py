@@ -11,7 +11,7 @@ password = 'guglielmo'
 
 print("Retrieving token for user mosic")
 r = requests.post(
-    '{0}/api-token-auth/'.format(service_url),
+    '{0}/api/token-auth/'.format(service_url),
     {"username": "guglielmo", "password": password}
 )
 jwt_token = r.json()['token']

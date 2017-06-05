@@ -213,6 +213,7 @@ class Documento(models.Model):
     delibera = models.ForeignKey(
         'Delibera',
         null=True,
+        related_name='documenti',
         on_delete=models.deletion.CASCADE,
     )
     tipo_documento = models.CharField(

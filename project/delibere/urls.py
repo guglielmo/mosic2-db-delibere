@@ -17,17 +17,17 @@ admin.autodiscover()
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter(trailing_slash=False)
-# router.register(r'delibere', DeliberaViewSet, base_name='delibere')
+router.register(r'delibere', views.DeliberaViewSet, base_name='delibere')
 
 schema_view = get_swagger_view(title='DB Delibere API')
 
 urls = [
     url(r'^admin/', admin.site.urls),
     url(r'^docs/', schema_view),
+    url(r'^api/upload_file/(?P<filename>.+)$', views.FileUploadView.as_view(), name='upload-file'),
+    url(r'^api/token-auth/', obtain_jwt_token, name='obtain-jwt'),
+    url(r'^api/token-refresh/', refresh_jwt_token, name='refresh-jwt'),
     url(r'^api/', include(router.urls)),
-    # url(r'^upload_file/(?P<filename>.+)$', FileUploadView.as_view(), name='upload-file'),
-    url(r'^api-token-auth/', obtain_jwt_token, name='obtain-jwt'),
-    url(r'^api-token-refresh/', refresh_jwt_token, name='refresh-jwt'),
     url(r'^403$', views.TemplateView.as_view(template_name="403.html"), name='tampering-403'),
     url(r'^$', views.DelibereSearchView.as_view(), name='delibere_search'),
     url(r'^(?P<slug>[\w-]+)/$', views.DeliberaView.as_view(), name='delibera_details'),
