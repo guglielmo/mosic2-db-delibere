@@ -86,7 +86,7 @@ class Command(BaseCommand):
             doc, created = Documento.objects.update_or_create(
                 id=row['ID'],
                 defaults={
-                    'name': row['NOMEFILE'],
+                    'nome': row['NOMEFILE'],
                     'delibera_id': row['DELIB_ID'] ,
                     'estensione': row['ESTENSIONE'],
                     'tipo_documento': doc_type[0].upper(),
