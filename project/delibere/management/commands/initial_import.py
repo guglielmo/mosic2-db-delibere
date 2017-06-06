@@ -412,7 +412,7 @@ class Command(BaseCommand):
             for s in d.settori.all():
                 if s.parent and not s.parent in d.settori.all():
                     self.stdout.write(self.style.NOTICE(
-                        "adding {0} to {1} for {2}".format(
+                        u"adding {0} to {1} for {2}".format(
                             s.parent ,s, d
                         )
                     ))
