@@ -69,7 +69,7 @@ class DeliberaIndex(indexes.SearchIndex, indexes.Indexable):
         # manually before calling extract_file_contents:
         docs_content = ''
         backend = self._get_backend(None)
-        docs = obj.documento_set.all()
+        docs = obj.documenti.all()
         for doc in docs:
 
             # pdf documents from 2009 come from GU and may
