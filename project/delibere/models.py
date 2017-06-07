@@ -54,7 +54,7 @@ class Delibera(Timestampable, models.Model):
         verbose_name="Anno seduta"
     )
     numero = models.CharField(
-        max_length=10,
+        max_length=16,
         help_text="Numero della delibera, per quest'anno",
         verbose_name="Numero"
     )
