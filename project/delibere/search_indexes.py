@@ -72,6 +72,10 @@ class DeliberaIndex(indexes.SearchIndex, indexes.Indexable):
         docs = obj.documenti.all()
         for doc in docs:
 
+
+            if not hasattr(doc, 'file'):
+                continue
+
             # pdf documents from 2009 come from GU and may
             # contain parts of other acts, right before or after
             # the delibera. This would pollute the index, so only the

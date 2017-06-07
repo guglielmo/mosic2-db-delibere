@@ -96,7 +96,10 @@ class Command(BaseCommand):
             try:
                 # load content of original file into media
                 # simulate a file upload
-                doc.file.delete(save=False)
+                if doc.file:
+                    storage, path = doc.file.storage, doc.file.path
+                    storage.delete(path)
+
                 with open(original_abs_file_path) as fp:
                     doc.file.save(file_path, File(fp), save=True)
 
@@ -112,7 +115,12 @@ class Command(BaseCommand):
                 )
 
                 try:
-                    response = requests.get(doc_url, timeout=2.0)
+                    response = requests.get(doc_url, timeout=4.0)
+
+                    if doc.file:
+                        storage, path = doc.file.storage, doc.file.path
+                        storage.delete(path)
+
                     doc.file.save(file_path, ContentFile(response.content))
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(
