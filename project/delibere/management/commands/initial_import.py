@@ -112,7 +112,7 @@ class Command(BaseCommand):
                 )
 
                 try:
-                    response = requests.get(doc_url)
+                    response = requests.get(doc_url, timeout=2.0)
                     doc.file.save(file_path, ContentFile(response.content))
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(
