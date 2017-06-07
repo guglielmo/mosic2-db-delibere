@@ -35,8 +35,8 @@ class Delibera(Timestampable, models.Model):
         help_text="Codice identificativo anno/seduta."
     )
     slug = models.CharField(
-        max_length=14, unique=True, null=True,
-        help_text="Slug identificativo numer-data"
+        max_length=32, unique=True, null=True,
+        help_text="Slug identificativo numero-data"
     )
     descrizione = models.CharField(
         max_length=512,
@@ -160,7 +160,7 @@ class Delibera(Timestampable, models.Model):
 
     @property
     def doc_primari_pdf(self):
-        return self.documento_set.filter(
+        return self.documenti.filter(
             tipo_documento='P', estensione__iexact='pdf'
         )
 
@@ -177,13 +177,13 @@ class Delibera(Timestampable, models.Model):
 
     @property
     def doc_primari_doc(self):
-        return self.documento_set.filter(
+        return self.documenti.filter(
             tipo_documento='P', estensione__iexact='doc'
         )
 
     @property
     def doc_allegati(self):
-        return self.documento_set.filter(tipo_documento='A')
+        return self.documenti.filter(tipo_documento='A')
 
     def __unicode__(self):
         return self.descrizione
