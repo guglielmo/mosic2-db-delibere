@@ -299,16 +299,16 @@ class Settore(models.Model):
         related_name='children'
     )
     ss_id = models.IntegerField(
-        unique=True, null=True
+        unique=True, null=True, blank=True
     )
     sss_id = models.IntegerField(
-        unique=True, null=True
+        unique=True, null=True, blank=True
     )
     descrizione = models.CharField(
         max_length=128,
     )
     display_order = models.PositiveIntegerField(
-        null=True,
+        null=True, blank=True
     )
 
     def __unicode__(self):

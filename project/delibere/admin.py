@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib import admin
 
-from delibere.models import Firmatario, Delibera, Documento
+from delibere.models import Firmatario, Delibera, Documento, Amministrazione, \
+    Settore, Normativa
 
 
 class DocumentoInline(admin.TabularInline):
@@ -44,10 +45,34 @@ class DeliberaAdmin(admin.ModelAdmin):
 
 
 class FirmatarioAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nominativo')
+    list_display = ('nominativo',)
     readonly_fields = ('id', )
     search_fields = ('nominativo',)
 
 
+class AmministrazioneAdmin(admin.ModelAdmin):
+    list_display = ('codice', 'denominazione')
+    readonly_fields = ('id', )
+    search_fields = ('denominazione',)
+
+class SettoreAdmin(admin.ModelAdmin):
+    list_display = ('descrizione', 'parent',)
+    readonly_fields = ('id', 'ss_id', 'sss_id' )
+    search_fields = ('descrizione',)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(SettoreAdmin, self).get_form(request, obj, **kwargs)
+        form.base_fields['descrizione'].widget.attrs['style'] = 'width: 45em;'
+        return form
+
+
+class NormativaAdmin(admin.ModelAdmin):
+    list_display = ('descrizione',)
+    readonly_fields = ('id', )
+    search_fields = ('descrizione',)
+
+admin.site.register(Settore, SettoreAdmin)
+admin.site.register(Normativa, NormativaAdmin)
+admin.site.register(Amministrazione, AmministrazioneAdmin)
 admin.site.register(Firmatario, FirmatarioAdmin)
 admin.site.register(Delibera, DeliberaAdmin)
