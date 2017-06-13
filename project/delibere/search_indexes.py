@@ -73,7 +73,8 @@ class DeliberaIndex(indexes.SearchIndex, indexes.Indexable):
         for doc in docs:
 
 
-            if not hasattr(doc, 'file'):
+            if not hasattr(doc.file, 'path'):
+                sys.stdout.write(doc.nome)
                 continue
 
             # pdf documents from 2009 come from GU and may

@@ -10,8 +10,14 @@ import search_indexes
 
 
 class Timestampable(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True, null=True)
-    updated_at = models.DateTimeField(auto_now=False, null=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True, null=True,
+        verbose_name="Data di creazione"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=False, null=True,
+        verbose_name="Data di modifica"
+    )
 
     class Meta:
         abstract = True
@@ -36,6 +42,7 @@ class Delibera(Timestampable, models.Model):
     )
     slug = models.CharField(
         max_length=32, unique=True, null=True,
+        verbose_name="Identificativo nella URL",
         help_text="Slug identificativo numero-data"
     )
     descrizione = models.CharField(
@@ -62,12 +69,22 @@ class Delibera(Timestampable, models.Model):
     tipo_delibera = models.CharField(
         max_length=32,
         blank=True, null=True,
-        help_text="Il tipo di delibera, se Riparto/Assegnazioni, Altro, Direttive, Piani/Programmi"
+        choices=(
+            ('Riparto/Assegnazioni', 'Riparto/Assegnazioni'),
+            ('Direttive', 'Direttive'),
+            ('Piani/Programmi', 'Piani/Programmi'),
+            ('Altro', 'Altro'),
+        )
     )
     tipo_territorio = models.CharField(
         max_length=32,
         blank=True, null=True,
-        help_text="Il tipo di territorio, se Regionale, Nazionale, Miltiregionale, Altro"
+        choices=(
+            ('Regionale', 'Regionale'),
+            ('Nazionale', 'Nazionale'),
+            ('Multiregionale', 'Multiregionale'),
+            ('Altro', 'Altro'),
+        )
     )
 
 
@@ -78,19 +95,25 @@ class Delibera(Timestampable, models.Model):
     tipo_firmatario = models.CharField(
         max_length=32,
         blank=True, null=True,
-        help_text="Il tipo di firmatario, se Ministro o altro"
+        choices=(
+            ('Ministro', 'Ministro'),
+            ('Altro', 'Altro')
+        )
     )
 
     amministrazioni = models.ManyToManyField(
-        'Amministrazione', related_name='delibere'
+        'Amministrazione', related_name='delibere',
+        null=True, blank=True
     )
 
     normative = models.ManyToManyField(
-        'Normativa', related_name='delibere'
+        'Normativa', related_name='delibere',
+        null=True, blank=True
     )
 
     settori = models.ManyToManyField(
-        'Settore', related_name='delibere'
+        'Settore', related_name='delibere',
+        null=True, blank=True
     )
 
     cc_data = models.DateField(
@@ -135,13 +158,13 @@ class Delibera(Timestampable, models.Model):
         blank=True, null=True,
         max_length=12,
         help_text="Data di pubblicazione della rettifica in Gazzetta Ufficiale",
-        verbose_name="Pub. G.U. - Data"
+        verbose_name="Pub. G.U. - Data rettifica"
     )
     gu_numero_rettifica = models.CharField(
         blank=True, null=True,
         max_length=12,
         help_text="Numero di pubblicazione della rettifica in Gazzetta Ufficiale",
-        verbose_name="Pub. G.U. - Numero"
+        verbose_name="Pub. G.U. - Numero rettifica"
     )
 
     note = models.CharField(
@@ -218,15 +241,21 @@ class Documento(models.Model):
     )
     tipo_documento = models.CharField(
         max_length=1,
-        help_text="P - Principale, A - Allegato"
+        choices=(
+            ('P', 'Principale'),
+            ('A', 'Allegato')
+        )
     )
     estensione = models.CharField(
         max_length=4,
-        help_text="L'estensione del documento"
+        help_text="L'estensione del documento (doc, docx, pdf, ppt, xls, ...)"
     )
 
     def __unicode__(self):
-        return self.file.path
+        if self.file:
+            return self.file.path
+        else:
+            return self.nome
 
 
     class Meta:
@@ -294,10 +323,24 @@ class Settore(models.Model):
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
+@receiver(post_save, sender=Delibera)
+def delibera_post_save_handler(sender, **kwargs):
+    """When the delibera object is saved,
+    update data in solr index.
+
+    :param sender:
+    :param kwargs:
+    :return:
+    """
+    delibera_obj = kwargs['instance']
+    index = search_indexes.DeliberaIndex()
+    index.update_object(delibera_obj)
+
+
 @receiver(post_save, sender=Documento)
 def documento_post_save_handler(sender, **kwargs):
     """When the documento object is saved
-    update data in solr index.
+    update all delibera data in solr index.
 
     :param sender:
     :param kwargs:
@@ -336,7 +379,7 @@ def documento_post_delete_handler(sender, **kwargs):
         storage, path = documento_obj.file.storage, documento_obj.file.path
         storage.delete(path)
 
-    # remove extracted text document if it exists
-    text_path = documento_obj.file.path.replace('docs', 'texts') + '.txt'
-    if os.path.exists(text_path):
-        os.remove(text_path)
+        # remove extracted text document if it exists
+        text_path = documento_obj.file.path.replace('docs', 'texts') + '.txt'
+        if os.path.exists(text_path):
+            os.remove(text_path)
