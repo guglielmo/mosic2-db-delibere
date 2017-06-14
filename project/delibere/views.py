@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 from datetime import datetime
 from django.conf import settings
+from django.shortcuts import redirect
 from django.utils.text import slugify
 from django.views.generic import DetailView, TemplateView
 from haystack.generic_views import FacetedSearchView
@@ -29,6 +30,15 @@ class DelibereSearchView(FacetedSearchView):
         'seduta_data', 'anno', 'settori',
         'tipo_delibera', 'firmatario', 'amministrazioni',
     ]
+
+
+    def get(self, request, *args, **kwargs):
+        if len(request.GET.keys()) == 0:
+            response = redirect('delibere_search')
+            response['Location'] += '?q='
+            return response
+        else:
+            return super(DelibereSearchView, self).get(request, *args, **kwargs)
 
 
     def _build_facet_field_info(self, field, label, facets_fields=None, field_type='char'):
@@ -168,7 +178,7 @@ class DelibereSearchView(FacetedSearchView):
         # build nonempty_params dict, to check which parameters
         # were passed by the form
         nonempty_params = {}
-        for k, v in self.params.items():
+        for k, v in params.items():
             if k != 'selected_facets' and v != '':
                 nonempty_params[k] = v
 
