@@ -22,7 +22,8 @@ class DeliberaAdmin(admin.ModelAdmin):
         (None, {
             'fields': ('id', 'codice', 'descrizione', 'pubblicata',
                 'data', 'anno', 'numero',
-                'firmatario', 'tipo_firmatario'
+                'firmatario', 'tipo_firmatario',
+                'note'
             )
         }),
         ('Categorizzazione', {
@@ -51,6 +52,9 @@ class DeliberaAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         form = super(DeliberaAdmin, self).get_form(request, obj, **kwargs)
         form.base_fields['descrizione'].widget = forms.Textarea(
+            attrs={'rows':'5', 'cols': '80'}
+        )
+        form.base_fields['note'].widget = forms.Textarea(
             attrs={'rows':'5', 'cols': '80'}
         )
         form.base_fields['settori'] = TreeNodeMultipleChoiceField(

@@ -156,6 +156,12 @@ class Delibera(Timestampable, models.Model):
     gu_tipologia = models.CharField(
         blank=True, null=True,
         max_length=12,
+        choices=(
+            ('O', 'Ordinaria'),
+            ('S', 'Supplemento'),
+            ('I', 'Inserzioni?'),
+
+        ),
         help_text="Tipo di pubblicazione in Gazzetta Ufficiale",
         verbose_name="Pub. G.U. - Tipologia"
     )
@@ -238,7 +244,10 @@ class Documento(models.Model):
         upload_to=upload_to
     )
 
-    nome = models.CharField(max_length=32, null=True)
+    nome = models.CharField(
+        max_length=32,
+        null=True, blank=True
+    )
     delibera = models.ForeignKey(
         'Delibera',
         null=True,
@@ -254,6 +263,7 @@ class Documento(models.Model):
     )
     estensione = models.CharField(
         max_length=4,
+        blank=True, null=True,
         help_text="L'estensione del documento (doc, docx, pdf, ppt, xls, ...)"
     )
 
