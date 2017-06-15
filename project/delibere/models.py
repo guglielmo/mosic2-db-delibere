@@ -5,6 +5,8 @@ import os
 
 from django.db import models
 from django.urls import reverse
+from mptt.fields import TreeForeignKey
+from mptt.models import MPTTModel
 
 import search_indexes
 
@@ -44,6 +46,10 @@ class Delibera(Timestampable, models.Model):
         max_length=32, unique=True, null=True,
         verbose_name="Identificativo nella URL",
         help_text="Slug identificativo numero-data"
+    )
+    pubblicata = models.BooleanField(
+        default=False,
+        help_text="Se la delibera è visibile e ricercabile"
     )
     descrizione = models.CharField(
         max_length=512,
@@ -103,17 +109,17 @@ class Delibera(Timestampable, models.Model):
 
     amministrazioni = models.ManyToManyField(
         'Amministrazione', related_name='delibere',
-        null=True, blank=True
+        blank=True,
     )
 
     normative = models.ManyToManyField(
         'Normativa', related_name='delibere',
-        null=True, blank=True
+        blank=True,
     )
 
     settori = models.ManyToManyField(
         'Settore', related_name='delibere',
-        null=True, blank=True
+        blank=True,
     )
 
     cc_data = models.DateField(
@@ -271,12 +277,16 @@ class Amministrazione(models.Model):
     denominazione = models.CharField(
         max_length=128,
     )
+    posizione = models.PositiveIntegerField(
+        default=0, blank=False, null=False
+    )
 
     def __unicode__(self):
         return self.denominazione
 
 
     class Meta:
+        ordering = ('posizione',)
         verbose_name_plural = 'amministrazioni'
 
 
@@ -292,11 +302,13 @@ class Normativa(models.Model):
     class Meta:
         verbose_name_plural = 'normative'
 
-class Settore(models.Model):
-    parent = models.ForeignKey(
+
+class Settore(MPTTModel):
+    parent = TreeForeignKey(
         'self',
         blank=True, null=True,
-        related_name='children'
+        related_name='children',
+        db_index=True
     )
     ss_id = models.IntegerField(
         unique=True, null=True, blank=True
@@ -318,6 +330,8 @@ class Settore(models.Model):
     class Meta:
         verbose_name_plural = 'settori'
 
+
+
 # signals ---------------------------------------------
 
 from django.db.models.signals import post_save, post_delete
@@ -334,21 +348,10 @@ def delibera_post_save_handler(sender, **kwargs):
     """
     delibera_obj = kwargs['instance']
     index = search_indexes.DeliberaIndex()
-    index.update_object(delibera_obj)
-
-
-@receiver(post_save, sender=Documento)
-def documento_post_save_handler(sender, **kwargs):
-    """When the documento object is saved
-    update all delibera data in solr index.
-
-    :param sender:
-    :param kwargs:
-    :return:
-    """
-    documento_obj = kwargs['instance']
-    index = search_indexes.DeliberaIndex()
-    index.update_object(documento_obj.delibera)
+    if delibera_obj.pubblicata:
+        index.update_object(delibera_obj)
+    else:
+        index.remove_object(delibera_obj)
 
 
 @receiver(post_delete, sender=Delibera)
@@ -363,6 +366,23 @@ def delibera_post_delete_handler(sender, **kwargs):
     delibera_obj = kwargs['instance']
     index = search_indexes.DeliberaIndex()
     index.remove_object(delibera_obj)
+
+
+
+@receiver(post_save, sender=Documento)
+def documento_post_save_handler(sender, **kwargs):
+    """When the documento object is saved
+    update all delibera data in solr index.
+
+    :param sender:
+    :param kwargs:
+    :return:
+    """
+    documento_obj = kwargs['instance']
+    index = search_indexes.DeliberaIndex()
+    if documento_obj.delibera.pubblicata:
+        index.update_object(documento_obj.delibera)
+
 
 
 @receiver(post_delete, sender=Documento)

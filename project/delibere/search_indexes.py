@@ -45,13 +45,13 @@ class DeliberaIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
-        return self.get_model().objects.all()
+        return self.get_model().objects.filter(pubblicata=True)
 
     def prepare_numero_ord(self, obj):
         """usa campo numero per ordinamento
-        
-        vangono aggiunti degli zeri, fino ad avere 4 cifre decimali, in 
-        modo che 1, 1b, 10, 11 
+
+        vangono aggiunti degli zeri, fino ad avere 4 cifre decimali, in
+        modo che 1, 1b, 10, 11
         siano ordinati in sequenza e non come 1, 10, 11, 1b.
         """
         num = obj.numero

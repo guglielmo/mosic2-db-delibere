@@ -1,5 +1,9 @@
+from adminsortable2.admin import SortableAdminMixin
 from django import forms
 from django.contrib import admin
+from django.contrib.admin import widgets
+from mptt.admin import DraggableMPTTAdmin
+from mptt.forms import TreeNodeMultipleChoiceField
 
 from delibere.models import Firmatario, Delibera, Documento, Amministrazione, \
     Settore, Normativa
@@ -12,15 +16,21 @@ class DocumentoInline(admin.TabularInline):
     show_change_link = True
 
 class DeliberaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'numero', 'descrizione', 'cc_data', 'gu_data')
+    list_display = ('anno', 'data', 'numero', 'descrizione', 'pubblicata')
+    list_display_links = ('descrizione',)
     fieldsets = (
         (None, {
-            'fields': ('id', 'codice', 'descrizione', 'data', 'anno', 'numero',
-            'firmatario', 'tipo_firmatario')
+            'fields': ('id', 'codice', 'descrizione', 'pubblicata',
+                'data', 'anno', 'numero',
+                'firmatario', 'tipo_firmatario'
+            )
         }),
         ('Categorizzazione', {
-            'fields': ('tipo_delibera', 'tipo_territorio',
-                'amministrazioni', 'normative', 'settori',
+            'fields': (
+                'tipo_delibera',
+                'amministrazioni', 'settori',
+                'normative',
+                'tipo_territorio',
             ),
         }),
         ('Corte dei conti', {
@@ -33,13 +43,23 @@ class DeliberaAdmin(admin.ModelAdmin):
         }),
     )
     readonly_fields = ('id', 'slug', 'created_at', 'updated_at', )
+    filter_horizontal = ('amministrazioni', 'settori', 'normative', )
     search_fields = ('numero', 'anno', 'descrizione')
     inlines = [DocumentoInline,]
+    save_on_top = True
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(DeliberaAdmin, self).get_form(request, obj, **kwargs)
         form.base_fields['descrizione'].widget = forms.Textarea(
             attrs={'rows':'5', 'cols': '80'}
+        )
+        form.base_fields['settori'] = TreeNodeMultipleChoiceField(
+            required=False,
+            queryset=Settore.objects.all()
+        )
+        form.base_fields['settori'].widget = widgets.FilteredSelectMultiple(
+            'Settori',
+            False
         )
         return form
 
@@ -50,13 +70,18 @@ class FirmatarioAdmin(admin.ModelAdmin):
     search_fields = ('nominativo',)
 
 
-class AmministrazioneAdmin(admin.ModelAdmin):
-    list_display = ('codice', 'denominazione')
+class AmministrazioneAdmin(SortableAdminMixin, admin.ModelAdmin):
+    list_display = ('codice', 'denominazione',)
     readonly_fields = ('id', )
     search_fields = ('denominazione',)
+    list_display_links = ('denominazione',)
 
-class SettoreAdmin(admin.ModelAdmin):
-    list_display = ('descrizione', 'parent',)
+class SettoreAdmin(DraggableMPTTAdmin):
+    list_display = (
+        'tree_actions',
+        'indented_title',
+
+    )
     readonly_fields = ('id', 'ss_id', 'sss_id' )
     search_fields = ('descrizione',)
 

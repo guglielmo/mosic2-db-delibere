@@ -205,6 +205,12 @@ DJANGO_APPS = (
 
     # Django helper
     'django_extensions',
+
+    # Hierarchic tree manager
+    'mptt',
+
+    # Sortable
+    'adminsortable2',
 )
 
 # Apps specific for this project go here.
@@ -307,4 +313,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100
 
 }
+
+MPTT_ADMIN_LEVEL_INDENT = 20
 
