@@ -27,6 +27,10 @@
 			                <span class="posted-on"><i class="fa fa-calendar"></i>
                                 Pubblicata in G.U. in data {{ result.object.gu_data }}</span>
                         </div>
+                        {% else %}
+                		<div class="entry-meta">
+                            Registrata presso la Corte dei Conti
+                        </div>
                         {% endif %}
 	                </header>
                     <div class="entry-content">
@@ -83,7 +87,16 @@
                     {{ form.q }}
                 </div>
 
-                <hr/>
+                <h4>Ricerca per Anno e Numero</h4>
+                <div class="fieldWrapper form-group">
+                    {{ form.anno.errors }}
+                    {{ form.numero.errors }}
+                    {{ form.anno.label_tag }}
+                    {{ form.anno }}
+                    {{ form.numero.label_tag }}
+                    {{ form.numero }}
+                </div>
+
 
                 <h4>Ricerca per data della seduta</h4>
                 <div class="fieldWrapper form-group">
@@ -112,7 +125,6 @@
                     </div>
                 </div>
 
-                <hr/>
 
                 <h4>Ricerca per data di pubblicazione in Gazz. Uff.</h4>
                 <div class="fieldWrapper form-group">
@@ -128,17 +140,6 @@
                     </div>
                 </div>
 
-                <hr/>
-
-                <h4>Ricerca per Anno e Numero</h4>
-                <div class="fieldWrapper form-group">
-                    {{ form.anno.errors }}
-                    {{ form.numero.errors }}
-                    {{ form.anno.label_tag }}
-                    {{ form.anno }}
-                    {{ form.numero.label_tag }}
-                    {{ form.numero }}
-                </div>
 
                 <button type="submit" class="btn btn-default">Avvia ricerca</button>
                 <a class="btn btn-default" href="/?q=" role="button">Nuova ricerca</a>
