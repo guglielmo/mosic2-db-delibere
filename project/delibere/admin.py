@@ -14,6 +14,8 @@ class DocumentoInline(admin.TabularInline):
     extra = 0
     can_delete = True
     show_change_link = True
+    readonly_fields = ('nome', 'estensione',)
+
 
 class DeliberaAdmin(admin.ModelAdmin):
     list_display = ('anno', 'data', 'numero', 'descrizione', 'pubblicata')

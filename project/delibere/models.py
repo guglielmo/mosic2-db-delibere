@@ -389,10 +389,19 @@ def documento_post_save_handler(sender, **kwargs):
     :return:
     """
     documento_obj = kwargs['instance']
+
+    post_save.disconnect(documento_post_save_handler, sender=sender)
+
+    # nome and estensione can be retrieved from the file object
+    documento_obj.nome = documento_obj.file.name
+    documento_obj.estensione = documento_obj.file.name.split('.')[-1]
+    documento_obj.save()
+
     index = search_indexes.DeliberaIndex()
     if documento_obj.delibera.pubblicata:
         index.update_object(documento_obj.delibera)
 
+    post_save.connect(documento_post_save_handler, sender=sender)
 
 
 @receiver(post_delete, sender=Documento)
