@@ -384,6 +384,10 @@ def delibera_post_save_handler(sender, **kwargs):
         int(num.rstrip(string.punctuation).rstrip(string.letters))
     ) + num.lstrip(string.digits)
 
+    # defaults if not set
+    if delibera_obj.cc_data is not None and delibera_obj.cc_registro == '':
+        delibera_obj.cc_registro = 1
+
     delibera_obj.save()
 
     index = search_indexes.DeliberaIndex()

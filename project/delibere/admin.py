@@ -65,6 +65,10 @@ class DeliberaAdmin(admin.ModelAdmin):
             'Settori',
             False
         )
+        form.base_fields['cc_registro'].widget.attrs.update({
+            "placeholder": "1",
+        })
+
         return form
 
 class FirmatarioAdmin(admin.ModelAdmin):
