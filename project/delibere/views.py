@@ -28,7 +28,7 @@ class DelibereSearchView(FacetedSearchView):
     queryset = SearchQuerySet().order_by('-anno', '-numero_ord')
     facet_fields = [
         'seduta_data', 'anno', 'settori',
-        'tipo_delibera', 'firmatario', 'amministrazioni',
+        'firmatario', 'amministrazioni',
     ]
 
 
@@ -42,15 +42,15 @@ class DelibereSearchView(FacetedSearchView):
 
 
     def _build_facet_field_info(self, field, label, facets_fields=None, field_type='char'):
-        """Builds data structure to keep labels and info 
+        """Builds data structure to keep labels and info
         for a given facet section.
-        
+
         The returned data structure is used in the search_facets.html template
         in order to show the facets, with the links to add or remove filters.
-        
+
         :param field: faceted field
         :param label: the label used in template
-        :param facets_fields: the accepted facet fields, 
+        :param facets_fields: the accepted facet fields,
             if none all are accepted
         :return: the facet data structure
         """
@@ -80,12 +80,12 @@ class DelibereSearchView(FacetedSearchView):
         return facet
 
     def _build_range_facet_queries_info(self, name, field, label):
-        """Builds data structure to keep labels and info 
+        """Builds data structure to keep labels and info
         for a given range facet section.
-        
+
         The returned data structure is used in the search_facets.html template
-        in order to show the facets, with the links to add or remove filters. 
-        
+        in order to show the facets, with the links to add or remove filters.
+
         :param name:  name of the range
         :param field: faceted field
         :param label: the label used in template
@@ -120,7 +120,7 @@ class DelibereSearchView(FacetedSearchView):
     def _get_facet_urls(self, facet, key):
         """Build and return add_filter and remove_filter urls.
         The urls are used in template, to create actions links.
-        
+
         :param facet: facet name
         :param key:   facet key (value)
         :return: dictionary containing add_filter and remove_filter urls
@@ -143,12 +143,12 @@ class DelibereSearchView(FacetedSearchView):
     @property
     def params(self):
         """QueryString parameters, adjusted and sorted
-        
-        - `page` parameter is removed, 
+
+        - `page` parameter is removed,
         - if `q` is not present, it's inserted, with an empty value,
-        - `seected_facets` are sorted before being returned (for consistency) 
-        
-        :return: a copy of request.GET 
+        - `seected_facets` are sorted before being returned (for consistency)
+
+        :return: a copy of request.GET
         """
         params = self.request.GET.copy()
 
@@ -162,11 +162,11 @@ class DelibereSearchView(FacetedSearchView):
         return params
 
     def get_context_data(self, **kwargs):
-        """This is where the facets and selected facets are inserted 
+        """This is where the facets and selected facets are inserted
         into the context.
-        
-        :param kwargs: 
-        :return: 
+
+        :param kwargs:
+        :return:
         """
         context = super(DelibereSearchView, self).get_context_data(**kwargs)
         context['has_query'] = any(kwargs['form'].data.values())
