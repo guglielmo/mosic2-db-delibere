@@ -38,7 +38,6 @@ class DelibereSearchForm(FacetedSearchForm):
     }
 
 
-
     start_seduta_data = forms.DateField(
         required=False, label="dal"
     )
@@ -52,10 +51,10 @@ class DelibereSearchForm(FacetedSearchForm):
 
     anno = forms.IntegerField(
         required=False, label="Anno",
-        min_value=1967, max_value=datetime.now().year
+        min_value=1967, max_value=datetime.now().year,
     )
     numero = forms.CharField(
-        required=False, label="Numero"
+        required=False, label="Numero",
     )
 
 
@@ -69,6 +68,12 @@ class DelibereSearchForm(FacetedSearchForm):
             "placeholder": "Inserisci un testo da ricercare all'interno delle delibere",
             "class": "form-control"
         })
+        anno_choices = [('','----')] + [
+            (x,str(x)) for x in range(datetime.now().year, 1967, -1)
+        ]
+        self.fields['anno'] = forms.ChoiceField(
+            choices = anno_choices, required=False
+        )
 
 
     def search(self):
@@ -88,7 +93,7 @@ class DelibereSearchForm(FacetedSearchForm):
 
 
         if self.cleaned_data['anno']:
-            self.selected_facets.append('anno:{0:4d}'.format(self.cleaned_data['anno']))
+            self.selected_facets.append('anno:{0}'.format(self.cleaned_data['anno']))
 
         # We need to process each facet to ensure that the field name and the
         # value are quoted correctly and separately:

@@ -24,16 +24,13 @@ class DeliberaAdmin(admin.ModelAdmin):
         (None, {
             'fields': ('id', 'codice', 'descrizione', 'pubblicata',
                 'data', 'anno', 'numero',
-                'firmatario', 'tipo_firmatario',
+                'firmatario',
                 'note'
             )
         }),
         ('Categorizzazione', {
             'fields': (
-                'tipo_delibera',
                 'amministrazioni', 'settori',
-                'normative',
-                'tipo_territorio',
             ),
         }),
         ('Corte dei conti', {
@@ -46,7 +43,7 @@ class DeliberaAdmin(admin.ModelAdmin):
         }),
     )
     readonly_fields = ('id', 'slug', 'created_at', 'updated_at', )
-    filter_horizontal = ('amministrazioni', 'settori', 'normative', )
+    filter_horizontal = ('amministrazioni', 'settori', )
     search_fields = ('numero', 'anno', 'descrizione')
     inlines = [DocumentoInline,]
     save_on_top = True
