@@ -1,9 +1,11 @@
 from adminsortable2.admin import SortableAdminMixin
 from django import forms
 from django.contrib import admin
-from django.contrib.admin import widgets
+from django.contrib.admin import widgets, SimpleListFilter, FieldListFilter
+from django.contrib.admin.utils import reverse_field_path
 from mptt.admin import DraggableMPTTAdmin
 from mptt.forms import TreeNodeMultipleChoiceField
+from django_admin_listfilter_dropdown.filters import DropdownFilter
 
 from delibere.models import Firmatario, Delibera, Documento, Amministrazione, \
     Settore, Normativa
@@ -17,9 +19,71 @@ class DocumentoInline(admin.TabularInline):
     readonly_fields = ('nome', 'estensione',)
 
 
+class AnnoDropdownFilter(DropdownFilter):
+    """Patch DropdownFilter class to reverse ordering of items in dropdown.
+
+    TODO: It's a hack, a cleaner way should be implemented in the original
+        package
+
+    """
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        super(AnnoDropdownFilter, self).__init__(
+            field, request, params, model, model_admin, field_path)
+
+        queryset = model_admin.get_queryset(request)
+        self.lookup_choices = (queryset
+                               .distinct()
+                               .order_by("-{0}".format(field.name))
+                               .values_list(field.name, flat=True))
+
+
+class DataSedutaFilter(SimpleListFilter):
+
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = 'Data della seduta'
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'data'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar.
+        """
+        anno = request.GET.get('anno', None)
+        items = []
+        for item in model_admin.model.objects\
+                .filter(anno=anno)\
+                .order_by('-data')\
+                .values_list('data', flat=True)\
+                .distinct():
+            items.append((item, item.strftime("%d/%m/%Y")))
+        return items
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        # Compare the requested value (either '80s' or '90s')
+        # to decide how to filter the queryset.
+        if self.value():
+            return queryset.filter(data=self.value())
+        else:
+            return queryset
+
 class DeliberaAdmin(admin.ModelAdmin):
     list_display = ('anno', 'data', 'numero', 'descrizione', 'pubblicata')
     list_display_links = ('descrizione',)
+    list_filter = (
+        ('anno', AnnoDropdownFilter),
+        DataSedutaFilter,
+    )
     fieldsets = (
         (None, {
             'fields': ('id', 'codice', 'descrizione', 'pubblicata',

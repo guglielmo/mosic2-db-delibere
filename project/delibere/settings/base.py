@@ -211,6 +211,7 @@ DJANGO_APPS = (
 
     # Sortable
     'adminsortable2',
+    'django_admin_listfilter_dropdown',
 )
 
 # Apps specific for this project go here.

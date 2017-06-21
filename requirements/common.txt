@@ -36,4 +36,5 @@ django-rest-swagger==2.1.2
 
 markdown
 django-filter
+django-admin-list-filter-dropdown
 
