@@ -1,8 +1,10 @@
 # coding=utf-8
 from __future__ import unicode_literals
 
+import locale
 import os
 
+from datetime import datetime
 from django.db import models
 from django.urls import reverse
 from mptt.fields import TreeForeignKey
@@ -356,12 +358,27 @@ def delibera_post_save_handler(sender, **kwargs):
     :param kwargs:
     :return:
     """
+    post_save.disconnect(delibera_post_save_handler, sender=sender)
+
     delibera_obj = kwargs['instance']
+
+    # overwrite slug
+    locale.setlocale(locale.LC_TIME, "it_IT")
+    delibera_obj.slug = "{0}-{1:02d}-{2}-{3}".format(
+        delibera_obj.codice[3:].lstrip('0'),
+        delibera_obj.data.day,
+        delibera_obj.data.strftime("%B").lower(),
+        delibera_obj.data.year
+    )
+    delibera_obj.save()
+
     index = search_indexes.DeliberaIndex()
     if delibera_obj.pubblicata:
         index.update_object(delibera_obj)
     else:
         index.remove_object(delibera_obj)
+
+    post_save.connect(delibera_post_save_handler, sender=sender)
 
 
 @receiver(post_delete, sender=Delibera)
