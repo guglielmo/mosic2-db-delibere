@@ -45,6 +45,7 @@ class DeliberaAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'slug', 'created_at', 'updated_at', )
     filter_horizontal = ('amministrazioni', 'settori', )
     search_fields = ('numero', 'anno', 'descrizione')
+    ordering = ('-anno', '-numero_ord')
     inlines = [DocumentoInline,]
     save_on_top = True
 
@@ -65,7 +66,6 @@ class DeliberaAdmin(admin.ModelAdmin):
             False
         )
         return form
-
 
 class FirmatarioAdmin(admin.ModelAdmin):
     list_display = ('nominativo',)

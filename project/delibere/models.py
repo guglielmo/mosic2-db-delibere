@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import locale
 import os
+import string
 
 from datetime import datetime
 from django.db import models
@@ -71,6 +72,12 @@ class Delibera(Timestampable, models.Model):
     numero = models.CharField(
         max_length=16,
         help_text="Numero della delibera, per quest'anno",
+        verbose_name="Numero"
+    )
+    numero_ord = models.CharField(
+        max_length=16,
+        null=True, blank=True,
+        help_text="Numero della delibera, adatto per l'ordinamento",
         verbose_name="Numero"
     )
 
@@ -370,6 +377,13 @@ def delibera_post_save_handler(sender, **kwargs):
         delibera_obj.data.strftime("%B").lower(),
         delibera_obj.data.year
     )
+
+    # overwrite numero_ord
+    num = delibera_obj.numero
+    delibera_obj.numero_ord =  "{0:04d}".format(
+        int(num.rstrip(string.punctuation).rstrip(string.letters))
+    ) + num.lstrip(string.digits)
+
     delibera_obj.save()
 
     index = search_indexes.DeliberaIndex()
