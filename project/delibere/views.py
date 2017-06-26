@@ -186,7 +186,7 @@ class DelibereSearchView(FacetedSearchView):
         self.facets_context = context['facets']
 
         import locale
-        locale.setlocale(locale.LC_TIME, "it_IT")
+        locale.setlocale(locale.LC_TIME, str("it_IT"))
 
         if 'anno' not in nonempty_params and 'numero' not in nonempty_params:
             my_facets['decennio'] = self._build_range_facet_queries_info(

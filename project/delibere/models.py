@@ -370,7 +370,7 @@ def delibera_post_save_handler(sender, **kwargs):
     delibera_obj = kwargs['instance']
 
     # overwrite slug
-    locale.setlocale(locale.LC_TIME, "it_IT")
+    locale.setlocale(locale.LC_TIME, str("it_IT"))
     delibera_obj.slug = "{0}-{1:02d}-{2}-{3}".format(
         delibera_obj.codice[3:].lstrip('0'),
         delibera_obj.data.day,

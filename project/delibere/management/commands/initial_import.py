@@ -52,7 +52,7 @@ class Command(BaseCommand):
         E950139.doc         => 1995
 
         :param nomefile: nome del file da cui estrarre l'anno
-        :return: l'anno nel formato YYYY 
+        :return: l'anno nel formato YYYY
         """
         anno = nomefile[1:3]
         if anno[0] > '5':
@@ -63,10 +63,10 @@ class Command(BaseCommand):
 
     def _import_documenti(self, rows, doc_type):
         """procedura creazione documenti
-        
-        :param rows:      le righe del CSV contenente le informazioni 
+
+        :param rows:      le righe del CSV contenente le informazioni
         :param doc_type:  il tipo (documenti, allegati)
-        :return: 
+        :return:
         """
         self.stdout.write(self.style.NOTICE("Starting import of {0}".format(doc_type)))
         for n, row in enumerate(rows):
@@ -202,7 +202,7 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.NOTICE("Starting import of delibere"))
         import locale
-        locale.setlocale(locale.LC_TIME, "it_IT")
+        locale.setlocale(locale.LC_TIME, str("it_IT"))
         for n, row in enumerate(rows):
             try:
                 Delibera.objects.update_or_create(
