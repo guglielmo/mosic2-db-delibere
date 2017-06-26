@@ -5,7 +5,7 @@
 
     <div class="row">
 
-        <div class="col-sm-8 results">
+        <div class="col-sm-8 results clearfix">
 
             {% if has_query %}
             <h3>Trovate {{ page_obj.paginator.count }} delibere</h3>
@@ -72,9 +72,8 @@
 
         <div class="col-sm-4 sidebar">
 
+          <div id="filtersSidebar" class="sidebar-module sidebar-module-inset">
 
-
-          <div class="sidebar-module sidebar-module-inset">
             <form method="get" action="/">
 
                 <h3>Cerca tra le delibere</h3>
@@ -163,6 +162,10 @@
           </div>
 
         </div><!-- /.sidebar -->
+
+        <div id="filtersSidebarHandle" style="display: none;">
+            <span id="filtersSidebarButton">Mostra filtri</span>
+        </div>
 
       </div>
 

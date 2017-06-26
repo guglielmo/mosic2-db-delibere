@@ -27,6 +27,72 @@
         margin-top: 0;
     }
 }
+
+@media (max-width: 767px) and (min-width: 420px){
+    .scrolled .logo_text {
+        height: 54px;
+    }
+
+    .scrolled .logo_text h1,
+    .scrolled .logo_text .h1,
+    .scrolled .logo_text h2,
+    .scrolled .logo_text .h2 {
+        line-height: 1em;
+    }
+}
+@media (max-width: 767px){
+    .scrolled .logo_text {
+        height: 44px;
+    }
+
+    #barra_logo_governo {
+        height: 55px;
+    }
+    #barra_logo_governo .logo_governo {
+        margin-left: 0;
+    }
+    #barra_logo_governo .logo_governo p {
+        margin-top: 0;
+        padding-left: 0;
+        padding-top: 27px;
+    }
+
+    #logo .logo_container {
+        margin-left: 0;
+    }
+    .navbar-header.testata {
+        margin-bottom: 20px;
+    }
+    #cookie-law-info-again {
+        font-size: 9pt;
+    }
+
+    .sidebar {
+        display: block;
+    }
+
+    #filtersSidebarHandle {
+        display: block!important;
+        position: absolute;
+        background-color: #fff;
+        top: 150px;
+        right: 0;
+        opacity: 0.75;
+    }
+    #filtersSidebarHandle #filtersSidebarButton {
+        display: block;
+        color: #fff;
+        font-size: 10px;
+        font-weight: bold;
+        text-align: center;
+        background: #000 no-repeat left center;
+        padding: 2px 4px;
+        margin-right: 3px;
+        cursor: hand;
+    }
+}
+
+
 .sidebar {
     background-color: rgb(238, 238, 238);
 }
@@ -70,8 +136,9 @@ div.result p {
     margin: 0;
 }
 
-
-
+select#id_anno{
+    background-color: white;
+}
 
 ul#pagination-digg{border:0; margin:1em 10px; padding:0; float: right}
 

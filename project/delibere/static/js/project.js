@@ -18,6 +18,27 @@ $('#toggle-text-preview').on('click', function(){
     }
  });
 
+$('#filtersSidebarButton').on('click', function(){
+    div1 = $('.results');
+    div2 = $('.sidebar');
+
+    tdiv1 = div1.clone();
+    tdiv2 = div2.clone();
+
+    if(!div2.is(':empty')){
+        div1.replaceWith(tdiv2);
+        div2.replaceWith(tdiv1);
+    }
+
+    filters_button = $('#filtersSidebarButton');
+    if (filters_button.text() == 'Mostra filtri') {
+        filters_button.text('Nascondi filtri');
+        $
+    } else {
+        filters_button.text('Mostra filtri');
+    }
+
+});
 
 /* Date pickers */
 
