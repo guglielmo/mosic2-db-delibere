@@ -45,6 +45,10 @@
         font-size: 9pt;
     }
 
+    .results {
+        margin-top: 10px;
+    }
+
     .sidebar {
         display: block;
     }

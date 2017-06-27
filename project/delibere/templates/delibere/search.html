@@ -8,9 +8,11 @@
         <div class="col-sm-8 results clearfix">
 
             {% if has_query %}
-            <h3>Trovate {{ page_obj.paginator.count }} delibere</h3>
+            <h3>Trovate {{ page_obj.paginator.count }} delibere
+                che verificano i filtri impostati</h3>
             {% else %}
-            <h3>Elenco delle {{ page_obj.paginator.count }} delibere in archivio</h3>
+            <h3>Elenco delle {{ page_obj.paginator.count }} delibere
+            in archivio</h3>
             {% endif %}
 
             {% for result in page_obj.object_list %}
@@ -18,14 +20,16 @@
                     <header class="entry-header page-header">
                         <h3 class="result-description">
                             <a href="{{ result.object.get_absolute_url }}">
-                                Delibera n. {{ result.object.numero }}/{{ result.object.anno }}
+                                Delibera n.
+                                {{ result.object.numero }}/{{ result.object.anno }}
                             </a> del {{ result.object.data }}
                         </h3>
 
                         {% if result.object.gu_data %}
                 		<div class="entry-meta">
 			                <span class="posted-on"><i class="fa fa-calendar"></i>
-                                Pubblicata in G.U. in data {{ result.object.gu_data }}</span>
+                                Pubblicata in G.U. in data
+                                {{ result.object.gu_data }}</span>
                         </div>
                         {% else %}
                 		<div class="entry-meta">
@@ -141,7 +145,7 @@
 
 
                 <button type="submit" class="btn btn-default">Avvia ricerca</button>
-                <a class="btn btn-default" href="/?q=" role="button">Nuova ricerca</a>
+                <a class="btn btn-default" href="/?q=" role="button">Azzera filtri</a>
             </form>
           </div>
 
