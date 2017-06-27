@@ -78,7 +78,8 @@ class DataSedutaFilter(SimpleListFilter):
             return queryset
 
 class DeliberaAdmin(admin.ModelAdmin):
-    list_display = ('anno', 'data', 'numero', 'descrizione', 'pubblicata')
+    list_display = ('anno', 'data', 'numero', 'descrizione',
+        'pubblicata', 'cc', 'gu')
     list_display_links = ('descrizione',)
     list_filter = (
         ('anno', AnnoDropdownFilter),
@@ -112,6 +113,17 @@ class DeliberaAdmin(admin.ModelAdmin):
     ordering = ('-anno', '-numero_ord')
     inlines = [DocumentoInline,]
     save_on_top = True
+
+    def cc(self, obj):
+        return obj.cc_data is not None
+    cc.boolean = True
+
+    def gu(self, obj):
+        return obj.gu_data is not None
+    gu.boolean = True
+
+
+
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(DeliberaAdmin, self).get_form(request, obj, **kwargs)
