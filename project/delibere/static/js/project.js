@@ -11,10 +11,10 @@ $('.toggle-more').on('click', function(){
  });
 
 $('#toggle-text-preview').on('click', function(){
-    if (this.innerHTML == "Mostra un'anteprima del testo della delibera"){
+    if (this.innerHTML == "Mostra l'anteprima del testo della delibera"){
         this.innerHTML = "Nascondi l'anteprima del testo della delibera"
     } else {
-        this.innerHTML = "Mostra un'anteprima del testo della delibera"
+        this.innerHTML = "Mostra l'anteprima del testo della delibera"
     }
  });
 
