@@ -34,6 +34,11 @@ class RequestTestCase(TestCase):
             user=User.objects.create_user('test')
         )
 
+        self.inner_fields = [
+            'settori', 'amministrazioni', 'normative',
+            'firmatario'
+        ]
+
         self.simple_delibera = {
             "data": "2016-12-01",
             "anno": "2016",
@@ -92,6 +97,10 @@ class RequestTestCase(TestCase):
             ]
         }
 
+        self.uploaded_doc_path = './resources/media/{0}'.format(
+            self.complex_delibera['documenti'][0]['file']
+        )
+
     def test_upload_non_existing_doc_gives_404(self):
         assert search_indexes.DeliberaIndex is self.MockDeliberaIndex
 
@@ -105,52 +114,12 @@ class RequestTestCase(TestCase):
     def test_create_simple_delibera(self):
         assert search_indexes.DeliberaIndex is self.MockDeliberaIndex
 
-        response = self.client.post(
-            '/api/delibere', self.simple_delibera, format='json'
-        )
-        self.assertEquals(response.status_code, 201)
+        self._create_delibera(self.simple_delibera)
 
     def test_create_complex_delibera(self):
         assert search_indexes.DeliberaIndex is self.MockDeliberaIndex
 
-        response = self.client.post(
-            '/api/delibere', self.complex_delibera, format='json'
-        )
-        self.assertEquals(response.status_code, 201)
-
-        with open('./resources/fixtures/E160071.pdf', 'rb') as fp:
-            response = self.client.put(
-                '/api/upload_file/{0}'.format(
-                    self.complex_delibera['documenti'][0]['file']
-                ),
-                {'file': fp },
-            )
-            self.assertEquals(response.status_code, 204)
-
-    def test_remove_complex_delibera(self):
-        assert search_indexes.DeliberaIndex is self.MockDeliberaIndex
-
-        inner_fields = [
-            'settori', 'amministrazioni', 'normative',
-            'firmatario'
-        ]
-
-
-        # create delibera from data
-        response = self.client.post(
-            '/api/delibere', self.complex_delibera, format='json'
-        )
-        self.assertEquals(response.status_code, 201)
-
-        # upload document file
-        with open('./resources/fixtures/E160071.pdf', 'rb') as fp:
-            response = self.client.put(
-                '/api/upload_file/{0}'.format(
-                    self.complex_delibera['documenti'][0]['file']
-                ),
-                {'file': fp },
-            )
-            self.assertEquals(response.status_code, 204)
+        self._create_delibera(self.complex_delibera, upload=True)
 
         # delibera can be found in list
         response = self.client.get(
@@ -160,23 +129,30 @@ class RequestTestCase(TestCase):
         delibera_id = response.data['results'][0]['id']
 
         # inner fields are not visible in list mode
-        for f in inner_fields:
+        for f in self.inner_fields:
             self.assertEquals(f in response.data['results'][0], False)
 
         # delibera was created with inner fields
         response = self.client.get(
             '/api/delibere/{0}'.format(delibera_id), format='json'
         )
-        for f in inner_fields:
+        for f in self.inner_fields:
             self.assertEquals(f in response.data, True)
             self.assertGreater(len(response.data[f]), 0)
 
-
         # file was uploaded
-        uploaded_doc_path = './resources/media/{0}'.format(
-            self.complex_delibera['documenti'][0]['file']
+        self.assertEquals(os.path.exists(self.uploaded_doc_path), True)
+
+    def test_remove_complex_delibera(self):
+        assert search_indexes.DeliberaIndex is self.MockDeliberaIndex
+
+        self._create_delibera(self.complex_delibera, upload=True)
+
+        # get delibera's id
+        response = self.client.get(
+            '/api/delibere', format='json'
         )
-        self.assertEquals(os.path.exists(uploaded_doc_path), True)
+        delibera_id = response.data['results'][0]['id']
 
         # remove delibera
         response = self.client.delete(
@@ -190,4 +166,23 @@ class RequestTestCase(TestCase):
         )
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['count'], 0)
-        self.assertEquals(os.path.exists(uploaded_doc_path), False)
+        self.assertEquals(os.path.exists(self.uploaded_doc_path), False)
+
+    def _create_delibera(self, delibera, upload=False):
+
+        # create delibera from data
+        response = self.client.post(
+            '/api/delibere', delibera, format='json'
+        )
+        self.assertEquals(response.status_code, 201)
+
+        if upload:
+            # upload document file
+            with open('./resources/fixtures/E160071.pdf', 'rb') as fp:
+                response = self.client.put(
+                    '/api/upload_file/{0}'.format(
+                        self.complex_delibera['documenti'][0]['file']
+                    ),
+                    {'file': fp },
+                )
+                self.assertEquals(response.status_code, 204)
