@@ -2,6 +2,7 @@
 -r common.txt
 selenium
 coverage
+mock
 Sphinx
 ipython<6.0
 

@@ -299,9 +299,9 @@ HAYSTACK_CONNECTIONS = {
 REST_FRAMEWORK = {
     # Only authenticated users can access the API
     # Authentication may be passed through:
-    # - a cookie,
-    # - a basic_auth header
     # - a jwt header (json web token)
+    # - a basic_auth header
+    # - a cookie,
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],

@@ -49,8 +49,25 @@ class DocumentoSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class DeliberaSerializer(serializers.HyperlinkedModelSerializer):
-    documenti = DocumentoSerializer(required=False, many=True)
-    self_uri = serializers.HyperlinkedIdentityField(view_name = 'delibere-detail')
+    documenti = DocumentoSerializer(
+        required=False, many=True
+    )
+    settori = SettoreSerializer(
+        required=False, many=True, write_only=True
+    )
+    firmatario = FirmatarioSerializer(
+        required=False, write_only=True
+    )
+    amministrazioni = AmministrazioneSerializer(
+        required=False, many=True, write_only=True
+    )
+    normative = NormativaSerializer(
+        required=False, many=True, write_only=True
+    )
+
+    self_uri = serializers.HyperlinkedIdentityField(
+        view_name = 'delibere-detail'
+    )
 
     def create(self, validated_data):
         """create the Delibera object and all internal objects
@@ -77,45 +94,63 @@ class DeliberaSerializer(serializers.HyperlinkedModelSerializer):
             if 'normative' in validated_data:
                 normative_data = validated_data.pop('normative')
 
+            firmatario_data = None
+            if 'firmatario' in validated_data:
+                firmatario_data = validated_data.pop('firmatario')
+
             delibera = Delibera.objects.create(**validated_data)
 
             for documento_data in documenti_data:
-                documento_id = documento_data.pop('id')
+                doc_nome = documento_data.pop('nome')
                 documento, created = Documento.objects.get_or_create(
-                    id=documento_id,
+                    nome=doc_nome,
                     defaults=documento_data
                 )
                 delibera.documenti.add(documento)
 
             for settore_data in settori_data:
-                settore_id = settore_data.pop('id')
+                descrizione = settore_data.pop('descrizione')
                 settore, created = Settore.objects.get_or_create(
-                    id=settore_id,
+                    descrizione=descrizione,
                     defaults=settore_data
                 )
                 delibera.settori.add(settore)
 
             for normativa_data in normative_data:
-                normativa_id = normativa_data.pop('id')
+                descrizione = normativa_data.pop('descrizione')
                 normativa, created = Normativa.objects.get_or_create(
-                    id=normativa_id,
+                    descrizione=descrizione,
                     defaults=normativa_data
                 )
                 delibera.normative.add(normativa)
 
             for amministrazione_data in amministrazioni_data:
-                amministrazione_id = amministrazione_data.pop('id')
+                codice = amministrazione_data.pop('codice')
                 amministrazione, created = Amministrazione.objects.get_or_create(
-                    id=amministrazione_id,
+                    codice=codice,
                     defaults=amministrazione_data
                 )
                 delibera.amministrazioni.add(amministrazione)
+
+            if firmatario_data:
+                nominativo = firmatario_data.pop('nominativo')
+                firmatario, created = Firmatario.objects.get_or_create(
+                    nominativo=nominativo,
+                    defaults=firmatario_data
+                )
+                delibera.firmatario = firmatario
+
+            delibera.save()
 
             return delibera
 
     class Meta:
         model = Delibera
-        fields = ('id', 'self_uri', 'data', 'anno', 'numero', 'descrizione', 'documenti')
+        fields = (
+            'id', 'self_uri',
+            'data', 'anno', 'numero', 'descrizione', 'firmatario',
+            'documenti', 'settori', 'amministrazioni', 'normative'
+        )
 
 
 class DeliberaDetailSerializer(serializers.HyperlinkedModelSerializer):

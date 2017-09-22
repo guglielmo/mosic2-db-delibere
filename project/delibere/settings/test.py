@@ -7,6 +7,8 @@ DATABASES = {
     "default": env.db(default='sqlite://:memory:'),
 }
 
+#
+USE_TZ = False
 
 ########## EMAIL CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#email-backend

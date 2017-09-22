@@ -4,9 +4,7 @@ import os
 from collections import OrderedDict
 
 from datetime import datetime
-from django.conf import settings
 from django.shortcuts import redirect
-from django.utils.text import slugify
 from django.views.generic import DetailView, TemplateView
 from haystack.generic_views import FacetedSearchView
 from haystack.query import SearchQuerySet
@@ -269,6 +267,7 @@ class DeliberaView(DetailView):
 from models import Delibera, Documento
 from serializers import DeliberaDetailSerializer, DeliberaSerializer
 
+
 class DeliberaViewSet(mixins.CreateModelMixin,
                       mixins.ListModelMixin,
                       mixins.RetrieveModelMixin,
@@ -327,13 +326,13 @@ class FileUploadView(views.APIView):
 
         # retrieve Documento object, corresponding to file
         try:
-            documento_obj = Documento.objects.get(filepath=filename)
+            doc_obj = Documento.objects.get(nome=file_ptr.name)
 
             # remove file from storage if existing, to avoid files duplication
-            documento_obj.file.storage.delete(filename)
+            doc_obj.file.storage.delete(filename)
 
             # save file to storage
-            documento_obj.file.save(filename, file_ptr)
+            doc_obj.file.save(filename, file_ptr)
 
             return Response(
                 status=204,

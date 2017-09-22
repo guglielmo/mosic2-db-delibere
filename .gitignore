@@ -6,6 +6,9 @@ __pycache__
 # Env file
 .env
 
+# virtualenv
+/venv/
+
 # Logs
 *.log
 pip-log.txt
