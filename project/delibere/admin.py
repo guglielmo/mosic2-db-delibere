@@ -93,11 +93,6 @@ class DeliberaAdmin(admin.ModelAdmin):
                 'note'
             )
         }),
-        ('Categorizzazione', {
-            'fields': (
-                'amministrazioni', 'settori',
-            ),
-        }),
         ('Corte dei conti', {
             'fields': ('cc_data', 'cc_registro', 'cc_foglio'),
         }),
@@ -106,6 +101,12 @@ class DeliberaAdmin(admin.ModelAdmin):
             'fields': ('gu_data', 'gu_numero', 'gu_tipologia',
                 'gu_data_rettifica', 'gu_numero_rettifica'),
         }),
+        ('Categorizzazione', {
+            'fields': (
+                'amministrazioni', 'settori',
+            ),
+        }),
+
     )
     readonly_fields = ('id', 'slug', 'created_at', 'updated_at', )
     filter_horizontal = ('amministrazioni', 'settori', )

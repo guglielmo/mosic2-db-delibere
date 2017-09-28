@@ -108,9 +108,9 @@ class Command(BaseCommand):
                     "download?f={0}".format(row['NOMEFILE'])
 
                 self.stdout.write(self.style.NOTICE(
-                    u"Could not find {0} locally. "
-                    u"Trying to download from {1}".format(
-                        row['NOMEFILE'], doc_url))
+                    u"Error while uploading {0} locally. "
+                    u"Trying to download from {1}.\n {2}".format(
+                        row['NOMEFILE'], doc_url, e))
                 )
 
                 try:
