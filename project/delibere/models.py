@@ -241,7 +241,8 @@ class Delibera(Timestampable, models.Model):
 
 def upload_to(instance, filename):
     # file will be uploaded to MEDIA_ROOT/<relURI>/<filename>
-    return '{0}'.format(filename)
+    anno = instance.delibera.anno
+    return 'docs/{0}/{1}'.format(anno, filename)
 
 class Documento(models.Model):
     # file will contain the file,
