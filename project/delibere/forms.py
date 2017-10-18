@@ -69,7 +69,7 @@ class DelibereSearchForm(FacetedSearchForm):
             "class": "form-control"
         })
         anno_choices = [('','----')] + [
-            (x,str(x)) for x in range(datetime.now().year, 1967, -1)
+            (x,str(x)) for x in range(datetime.now().year, 1966, -1)
         ]
         self.fields['anno'] = forms.ChoiceField(
             choices = anno_choices, required=False
