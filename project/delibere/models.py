@@ -430,6 +430,8 @@ def documento_post_save_handler(sender, **kwargs):
     post_save.disconnect(documento_post_save_handler, sender=sender)
 
     # nome and estensione can be retrieved from the file object
+    if documento_obj.nome is None:
+        documento_obj.nome = documento_obj.file.name.split('/')[-1]
     documento_obj.estensione = documento_obj.nome.split('.')[-1]
     documento_obj.save()
 

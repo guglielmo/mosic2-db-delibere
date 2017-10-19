@@ -62,6 +62,15 @@ class DeliberaIndex(indexes.SearchIndex, indexes.Indexable):
 
 
     def prepare(self, obj):
+        """Overrides SearchIndex's prepare method,
+        so that all documents attached to the delibera can be indexed
+
+        see
+        http://django-haystack.readthedocs.io/en/master/searchindex_api.html#prepare-self-object
+
+        :param obj: the object that needs to be indexed
+        :return:
+        """
         data = super(DeliberaIndex, self).prepare(obj)
 
         # Due to a library limitation
