@@ -76,10 +76,10 @@
                          {{ delibera.doc_primario.file.size|filesizeformat }})
                 {% endif %}
 
-                {% if delibera.doc_allegati.count > 0 %}
+                {% if delibera.doc_allegati_visibili.count > 0 %}
                     <br/>
                     <b>Allegati:</b>
-                    {% for doc in delibera.doc_allegati %}
+                    {% for doc in delibera.doc_allegati_visibili %}
                     <ul>
                         <li>
                         <a href="{{ doc.file.url }}">{{ doc.nome }}</a>

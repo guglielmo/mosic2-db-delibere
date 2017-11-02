@@ -227,7 +227,15 @@ class Delibera(Timestampable, models.Model):
 
     @property
     def doc_allegati(self):
-        return self.documenti.filter(tipo_documento='A')
+        return self.documenti.filter(
+            tipo_documento='A'
+        )
+
+    @property
+    def doc_allegati_visibili(self):
+        return self.doc_allegati.filter(
+            visibilita_allegati=True
+        )
 
     def __unicode__(self):
         return self.descrizione
@@ -276,6 +284,11 @@ class Documento(models.Model):
         max_length=4,
         blank=True, null=True,
         help_text="L'estensione del documento (doc, docx, pdf, ppt, xls, ...)"
+    )
+    visibilita_allegati = models.BooleanField(
+        'Visibilità allegato',
+        default=True,
+        help_text="Marcare la casella per rendere un allegato non visibile"
     )
 
     def __unicode__(self):
