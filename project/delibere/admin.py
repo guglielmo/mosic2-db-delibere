@@ -86,7 +86,7 @@ class DeliberaAdmin(admin.ModelAdmin):
         DataSedutaFilter,
     )
     fieldsets = (
-        (None, {
+        ('Delibera', {
             'fields': ('id', 'codice', 'descrizione', 'pubblicata',
                 'data', 'anno', 'numero',
                 'firmatario',
