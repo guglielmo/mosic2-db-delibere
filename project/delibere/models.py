@@ -5,7 +5,6 @@ import locale
 import os
 import string
 
-from datetime import datetime
 from django.db import models
 from django.urls import reverse
 from mptt.fields import TreeForeignKey
@@ -258,7 +257,6 @@ class Documento(models.Model):
     # after the Documento object has been created
     file = models.FileField(
         max_length=255,
-        blank=True, null=True,
         upload_to=upload_to
     )
 
